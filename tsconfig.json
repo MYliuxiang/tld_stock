@@ -1,11 +1,46 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowJs": true,  //添加 编译时允许有js
+    "allowSyntheticDefaultImports": true, //允许引用没有默认导出的模块
+    "outDir": "build", //添加 将输出结构重定向到目录
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "types": [
+      "webpack-env",
+      "jest"
+    ],
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
     },
-    {
-      "path": "./tsconfig.app.json"
-    }
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*",// 添加配置
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
+, "src/shims-vue.d.ts", "src/registerServiceWorker.ts", "src/main.ts", "src/store/index.ts", "src/router/index.ts", "src/store/state/num.state.js", "src/store/state/num.state.js", "src/store/state/userinfo.state.js"  ],
+  "exclude": [
+    "node_modules",
+    "build/**/*" //添加配置
   ]
 }
