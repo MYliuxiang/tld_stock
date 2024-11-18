@@ -32,11 +32,17 @@ export default defineConfig({
     port: 8080, 
     open: true,
     proxy: {
-      '/kpl': {
+      '/kpl/': {
+        target: 'http://8.138.113.191:8000',
+        changeOrigin: true,
+        ws: true,
+        // rewrite: (path: string) => path.replace(/^\/kpl/, ''),
+      },
+      '/sdata/': {
         target: 'http://8.138.113.191:8000/',
         changeOrigin: true,
         ws: true,
-        rewrite: (path: string) => path.replace(/^\/kpl/, ''),
+        rewrite: (path: string) => path.replace(/^\/sdata/, ''),
       },
     },
   }

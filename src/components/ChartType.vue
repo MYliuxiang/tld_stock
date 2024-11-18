@@ -18,6 +18,7 @@ import { init, dispose, Chart } from "klinecharts";
 import generatedDataList from "../generatedDataList";
 import Layout from "./Layout.vue";
 import { onMounted, onUnmounted } from "vue";
+import axios from "axios";
 
 let kLineChart:Chart;
 const chartTypes = [
@@ -28,11 +29,29 @@ const chartTypes = [
         { key: "ohlc", text: "OHLC" },
         { key: "area", text: "面积图" },
       ];
+ let reqInstance = axios.create({
+        timeout: 6000,
+    })
 
 onMounted(()=>{
   kLineChart = init("chart-type-k-line") as Chart;
-  kLineChart.applyNewData(generatedDataList());
+  // kLineChart.applyNewData(generatedDataList());
+  loadData(0);
 });
+
+async function loadData(index:number){
+
+    const kpl = await axios.get('/kpl/getseleted');
+    const params = {'code':'603679','index':index};
+
+    const data = await reqInstance.get('/sdata/daily')
+    if(data.data["errcode"] == '0'){
+      kLineChart.applyNewData(data.data['data'])
+    }
+  
+
+}
+
 
 function setChartType(type:any){
   kLineChart.setStyles({

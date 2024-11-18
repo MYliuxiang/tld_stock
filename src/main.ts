@@ -18,7 +18,7 @@ let config = {
   // withCredentials: true, // Check cross-site Access-Control
 };
 
-const _axios = axios.create(config);
+// const _axios = axios.create(config);
 app.config.globalProperties.$axios = axios;
 app.use(createPinia())
 app.use(router)
