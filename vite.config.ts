@@ -39,10 +39,10 @@ export default defineConfig({
         // rewrite: (path: string) => path.replace(/^\/kpl/, ''),
       },
       '/sdata/': {
-        target: 'http://8.138.113.191:8000/',
+        target: 'http://8.138.113.191:8000',
         changeOrigin: true,
         ws: true,
-        rewrite: (path: string) => path.replace(/^\/sdata/, ''),
+        // rewrite: (path: string) => path.replace(/^\/sdata/, ''),
       },
     },
   }

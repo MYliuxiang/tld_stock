@@ -64,9 +64,9 @@
         }
     
         
-        const respose =  reqInstance.get('/kpl/getseleted').then((data)=>{
-            console.log(data.data);
-        })
+        // const respose =  reqInstance.get('/kpl/getseleted').then((data)=>{
+        //     console.log(data.data);
+        // })
         // return respose;
     }
 

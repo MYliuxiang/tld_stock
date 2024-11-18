@@ -41,10 +41,9 @@ onMounted(()=>{
 
 async function loadData(index:number){
 
-    const kpl = await axios.get('/kpl/getseleted');
-    const params = {'code':'603679','index':index};
+    const params = {code:603679,index:index};
 
-    const data = await reqInstance.get('/sdata/daily')
+    const data = await reqInstance.post('/sdata/stockLineData',params)
     if(data.data["errcode"] == '0'){
       kLineChart.applyNewData(data.data['data'])
     }
