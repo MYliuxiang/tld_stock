@@ -6,6 +6,6 @@
 </template>
 
 <script setup lang="ts" name="Layout">
-  import { defineProps } from 'vue';
-  const props = defineProps({title:String})
+import { defineProps } from 'vue'
+defineProps({title:String})
 </script>

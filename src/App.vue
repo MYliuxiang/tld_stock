@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import StockView from './views/StockView.vue'
-import router from './router';
+// import StockView from './views/StockView.vue'
+// import router from './router'
 </script>
 
 <template>

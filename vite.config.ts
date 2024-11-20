@@ -3,12 +3,26 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import eslintPlugin from 'vite-plugin-eslint'
+
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
+    eslintPlugin({
+      include:['src/**/*.js','src/**/*.ts','src/**/*.vue','src/*.js','src/*.ts','src/*.vue']
+    }),
     vueDevTools(),
+    AutoImport({
+      resolvers: [ElementPlusResolver()],
+    }),
+    Components({
+      resolvers: [ElementPlusResolver()],
+    }),
   ],
   resolve: {
     alias: {
@@ -16,18 +30,7 @@ export default defineConfig({
     },
   },
   server: {
-    // host: '0.0.0.0',
-    // port: 8000,
-    // cors:true,//允许跨域。
-    // proxy: {
-    //   // 将请求代理到另一个服务器
-    //   '/kpl': {
-    //     target: 'http://8.138.113.191:8000/',//这是你要跨域请求的地址前缀
-    //     changeOrigin: true,//开启跨域
-    //     secure:true,
-    //     rewrite: path => path.replace(/^\/kpl/, ''),//去除前缀api
-    //   }
-    // }
+  
     host: '0.0.0.0',
     port: 8080, 
     open: true,

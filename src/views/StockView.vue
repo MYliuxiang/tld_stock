@@ -1,78 +1,52 @@
 <template>
-    <ChartType/>
+    <div> 
+        <el-tabs v-model="activeName" class="stock-tabs" @tab-click="handleClick">
+            <el-tab-pane label="分时" name="first"><ChartType/></el-tab-pane>
+            <el-tab-pane label="五日" name="second"><ChartType/></el-tab-pane>
+            <el-tab-pane label="日线" name="third"><ChartType/></el-tab-pane>
+        </el-tabs>
+    </div>
+    
 </template>
 
 <script setup lang="ts">
-    import { useRoute } from 'vue-router';
-    import ChartType from '../components/ChartType.vue';
-    import { onMounted } from 'vue';
-    import axios from 'axios';
-    import { getCurrentInstance } from 'vue';
-    const route = useRoute()
-    const {code, line15, line30} = route.query;
-
-    let reqInstance = axios.create({
-        timeout: 6000,
-    })
-
-    const header = {
-             "User-Agent" : 'PostmanRuntime/7.42.0',
-             'Accept-Encoding': 'gzip, deflate, br',
-             "Content-Type":"multipart/form-data; boundary=<calculated when request is sent>",
-             "Accept":"*/*"
-         };
-
-   
-    reqInstance.interceptors.request.use(config=>{
-        // config.headers['User-Agent']  = 'PostmanRuntime/7.42';
-        return config;
-    }, error=>{
-        return Promise.reject(error);
-    })
-
-
-     onMounted(()=>{
-      
-        const jsonData = loadData();
-        // console.log('hahah');
-        // console.log(jsonData);
-
-    });
-
-     function loadData(){
-
-        // const params = {
-        //     'Index':'4',
-        //     'Is_FS':'1',
-        //     'PhoneOSNew':'2',
-        //     'StockID':'603679',
-        //     'Type':'d',
-        //     'VerSion':'5.16.0.5',
-        //     'a':'GetKLineDay_W14',
-        //     'apiv':'w38',
-        //     'c':'StockLineData',
-        //     'st':'240',
-        // }
-        const params = {
-            'Day':'2024-11-18',
-            'PhoneOSNew':'2',
-            'StockID':'603679',
-            'VerSion':'5.16.0.5',
-            'a':'GetStockTrendMin',
-            'apiv':'w38',
-            'c':'StockL2Data',
-        }
-    
-        
-        // const respose =  reqInstance.get('/kpl/getseleted').then((data)=>{
-        //     console.log(data.data);
-        // })
-        // return respose;
-    }
+// import { useRoute } from 'vue-router';
+// import ChartType from '@/components/ChartType.vue';
+import { ref } from 'vue'
+import { TabsPaneContext } from 'element-plus'
+import ChartType from '@/components/ChartType.vue'
+// const route = useRoute()·
+// const {code, line15, line30} = route.query;
+const activeName = ref('first')
+const handleClick = (tab: TabsPaneContext, event: Event) => {
+}
 
 
 </script>
 
 <style>
+.el-tabs__nav-wrap::after{
+    position: static !important;
+}
+
+.el-tabs__active-bar{
+    background-color: transparent !important;
+}
+
+.stock-tabs > .el-tabs__content{
+    color: #6b778c;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.stock-tabs .el-tabs__item{
+    padding: 0px;
+    margin: 5px;
+    width: 30px;
+}
+
+.custom-tab-pane{
+    width: 50px;
+}
 
 </style>

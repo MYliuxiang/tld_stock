@@ -8,28 +8,23 @@
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "allowJs": true,  //添加 编译时允许有js
+    "allowJs": true, //添加 编译时允许有js
     "allowSyntheticDefaultImports": true, //允许引用没有默认导出的模块
     "outDir": "build", //添加 将输出结构重定向到目录
     "forceConsistentCasingInFileNames": true,
     "useDefineForClassFields": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "typeRoots": ["./node_modules/@types", "./typings", "./node_modules"],
     "types": [
-      "webpack-env",
-      "jest"
+      // "webpack-env",
+      "jest",
+      "vite/client"
     ],
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     },
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "scripthost"
-    ]
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
   "include": [
     "src/**/*.ts",

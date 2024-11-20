@@ -14,56 +14,56 @@
 </template>
 
 <script setup lang="ts" name="ChartType">
-import { init, dispose, Chart } from "klinecharts";
-import generatedDataList from "../generatedDataList";
-import Layout from "./Layout.vue";
-import { onMounted, onUnmounted } from "vue";
-import axios from "axios";
+import { init, dispose, Chart } from 'klinecharts'
+// import Layout from "./Layout.vue";
+import { onMounted, onUnmounted } from 'vue'
+import { postAPI } from '@/service'
 
-let kLineChart:Chart;
+let kLineChart:Chart 
 const chartTypes = [
-        { key: "candle_solid", text: "蜡烛实心" },
-        { key: "candle_stroke", text: "蜡烛空心" },
-        { key: "candle_up_stroke", text: "蜡烛涨空心" },
-        { key: "candle_down_stroke", text: "蜡烛跌空心" },
-        { key: "ohlc", text: "OHLC" },
-        { key: "area", text: "面积图" },
-      ];
- let reqInstance = axios.create({
-        timeout: 6000,
-    })
+  { key: 'candle_solid', text: '蜡烛实心' },
+  { key: 'candle_stroke', text: '蜡烛空心' },
+  { key: 'candle_up_stroke', text: '蜡烛涨空心' },
+  { key: 'candle_down_stroke', text: '蜡烛跌空心' },
+  { key: 'ohlc', text: 'OHLC' },
+  { key: 'area', text: '面积图' },
+]
 
-onMounted(()=>{
-  kLineChart = init("chart-type-k-line") as Chart;
-  // kLineChart.applyNewData(generatedDataList());
-  loadData(0);
-});
+
+onMounted(async()=> {    
+  console.log('挂载了')
+  kLineChart = init('chart-type-k-line') as Chart
+  const data = await loadData(0)
+  kLineChart.applyNewData(data)
+
+})
 
 async function loadData(index:number){
 
-    const params = {code:603679,index:index};
+  const params = {code:603679,index:index}
+  const res = await postAPI('/sdata/stockLineData',params)
 
-    const data = await reqInstance.post('/sdata/stockLineData',params)
-    if(data.data["errcode"] == '0'){
-      kLineChart.applyNewData(data.data['data'])
-    }
-  
+  if(res.data['code'] == '1'){
+    console.log(res.data)
+    return res.data['data']
+  }
+  return []
 
 }
 
 
 function setChartType(type:any){
   kLineChart.setStyles({
-        candle: {
-          type,
-        },
+    candle: {
+      type,
+    },
      
-  });
+  })
 }
 
 onUnmounted(()=>{
-  dispose("chart-type-k-line");
-});
+  dispose('chart-type-k-line')
+})
 
 
 </script>
