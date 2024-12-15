@@ -1,7 +1,7 @@
-import request from '@/service/request'
+import service from '@/service/request'
 
 export const getAPI = (url: string, data: any) => {
-  return request({
+  return service({
     url: url,
     method: 'get',
     params: data,
@@ -9,9 +9,9 @@ export const getAPI = (url: string, data: any) => {
 }
 
 export const postAPI = (url: string, data: any) => {
-  return request({
+  return service({
     url: url,
-    method: 'get',
+    method: 'post',
     data: data,
   })
 }

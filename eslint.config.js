@@ -24,6 +24,8 @@ export default [
       quotes: [2, 'single'], // 使用单引号
       'vue/html-closing-bracket-newline': 'off', // 不强制换行
       'vue/singleline-html-element-content-newline': 'off', // 不强制换行
+      'vue/no-export-in-script-setup':'off',
+      'vue/multi-word-component-names':'off',
       'vue/max-attributes-per-line': [
         'error',
         {
@@ -32,6 +34,6 @@ export default [
         },
       ], // vue template模板元素第一行最多5个属性
       // 其它的规则可以去eslint查看，根据自己需要进行添加
-    },
+    }
   },
 ]

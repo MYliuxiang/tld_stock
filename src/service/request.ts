@@ -34,12 +34,15 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   // 响应成功
   (response) => {
-    const { data, message, success } = response.data
-    if (success) {
+    const { data, message, code } = response.data
+    if (code == 1) {
       return data
     } else {
       ElMessage.error(message)
+      return Promise.reject('message')
+
     }
+
   },
 
   (error) => {
