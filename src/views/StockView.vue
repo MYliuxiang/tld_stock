@@ -1,4 +1,58 @@
 <template>
+   
+    <el-row>
+        <el-col :span="6">
+            <el-row :gutter="12">
+                <label class="contenr">17.07</label>
+            </el-row>
+            <el-row :gutter="12">
+                <label class="contenr">17.07</label>
+                <label class="contenr">17.07</label>
+            </el-row>
+        </el-col>
+        <el-col :span="6">
+            <el-row :gutter="8">
+               <label class="grad">高</label>
+               <label class="contenr">17.07</label>
+            </el-row>
+            <el-row :gutter="8">
+               <label class="grad">低</label>
+               <label class="contenr">17.07</label>
+            </el-row>
+            <el-row :gutter="8">
+               <label class="grad">开</label>
+               <label class="contenr">17.07</label>
+            </el-row>
+        </el-col>
+        <el-col :span="6">
+            <el-row :gutter="8">
+               <label class="grad">换手</label>
+               <label class="contenr">17.07</label>
+            </el-row>
+            <el-row :gutter="8">
+                <label class="grad">市值</label>
+                <label class="contenr">17.07</label>
+            </el-row>
+            <el-row :gutter="8">
+               <label class="grad">流通</label>
+              <label class="contenr">17.07</label>
+            </el-row>
+        </el-col>
+        <el-col :span="6">
+            <el-row :gutter="8">
+               <label class="grad">振幅</label>
+               <label class="contenr">振幅</label>
+            </el-row>
+            <el-row :gutter="8">
+               <label class="grad">金额</label>
+               <label class="contenr">振幅</label>
+            </el-row>
+            <el-row :gutter="8">
+              <label class="grad">距离</label>
+              <label class="contenr">振幅</label>
+            </el-row>
+        </el-col> 
+    </el-row>
     <div> 
         <el-tabs v-model="activeName" class="stock-tabs" @tab-click="handleClick">
             <el-tab-pane label="分时" name="first" lazy="false">
@@ -39,6 +93,9 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 </script>
 
 <style>
+
+
+
 .el-tabs__nav-wrap::after{
     position: static !important;
 }
@@ -65,6 +122,21 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 .el-tabs__header{
     margin: 0px;
 }
+
+
+
+
+   .grad{
+    color: #686868;
+    font-size: 8px;
+   }
+
+   .contenr{
+    color: #EA3323;
+    font-weight: 600;
+    font-size: 8px;
+   }
+
 
 
 </style>

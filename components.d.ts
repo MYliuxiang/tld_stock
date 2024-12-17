@@ -9,6 +9,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     ChartType: typeof import('./src/components/ChartType.vue')['default']
     DayLineChart: typeof import('./src/components/DayLineChart.vue')['default']
+    ElCol: typeof import('element-plus/es')['ElCol']
+    ElRow: typeof import('element-plus/es')['ElRow']
     ElTabPane: typeof import('element-plus/es')['ElTabPane']
     ElTabs: typeof import('element-plus/es')['ElTabs']
     FiveDayMineChart: typeof import('./src/components/FiveDayMineChart.vue')['default']

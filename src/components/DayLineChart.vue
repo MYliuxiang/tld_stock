@@ -2,17 +2,20 @@
   <div class="stock-chart">
     <div class="stock-chart-box" @touchstart="start($event)" @touchend="end">
       <!-- K线图 -->
-      <v-chart ref="vchart" v-if="showCharts" :option="options" :update-options="{ notMerge: true }" />
+      <v-chart ref="vchart" v-if="showCharts" :option="options" :update-options="{ notMerge: true }" @datazoom="onDataZoom"/>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, reactive, onBeforeMount, nextTick, defineProps } from 'vue'
+import { ref, reactive, onBeforeMount, nextTick, defineProps, onUnmounted } from 'vue'
 import 'echarts'
 import VChart from 'vue-echarts'
 import { postAPI } from '@/service'
 
 const {stockCode, line15, line30} = defineProps<{stockCode:string,line15:string, line30:string}>()
+const intervalId = ref()
+
+let count = ref<number>(0)
 
 // vchart组件的引用
 const vchart: any = ref(null)
@@ -31,8 +34,8 @@ let macd = ref<any[]>([])
 
 // 控制图表缩放和数据滚动
 let isOffset = ref<boolean>(false)
-let startValue = ref<number>(60)
-let endValue = ref<number>(100)
+let startValue = 60
+let endValue = 100
 
 // 当前数据长度，K线和牛熊先知的数据长度保持一致
 let currentDateLength = ref<number>(0)
@@ -135,6 +138,7 @@ function calculateMA() {
   let ma20close = 0.0
   let ma30close = 0.0
   yDatas.value.forEach((item: any, index: any) => {
+    
     let close = fomatFloat(item.value[1])
     ma5close += close
     ma10close += close
@@ -165,106 +169,13 @@ function calculateMA() {
       ma30.value.push(ma30close / (index + 1))
     }
   })
-
-  options.series.push(
-    {
-      type: 'line',
-      data: ma5.value,
-      smooth: true,
-      symbol: 'none',
-      gridIndex: 0,
-      xAxisIndex: 0,
-      yAxisIndex: 0,
-      z: 5,
-      lineStyle: {
-        opacity: 1,
-        color: '#AFAFAF',
-        width: 1
-      },
-      emphasis: {
-        focus: 'none',
-        scale: false,
-        disabled: 'none',
-        lineStyle: {
-          width: 1
-        }
-      }
-    },
-    {
-      type: 'line',
-      data: ma10.value,
-      smooth: true,
-      symbol: 'none',
-      gridIndex: 0,
-      xAxisIndex: 0,
-      yAxisIndex: 0,
-      z: 5,
-      lineStyle: {
-        opacity: 1,
-        color: '#9B37F6',
-        width: 1
-      },
-      emphasis: {
-        focus: 'none',
-        scale: false,
-        disabled: 'none',
-        lineStyle: {
-          width: 1
-        }
-      }
-    },
-    {
-      type: 'line',
-      data: ma20.value,
-      smooth: true,
-      symbol: 'none',
-      gridIndex: 0,
-      xAxisIndex: 0,
-      yAxisIndex: 0,
-      z: 5,
-      lineStyle: {
-        opacity: 1,
-        color: '#F3B846',
-        width: 1
-      },
-      emphasis: {
-        focus: 'none',
-        scale: false,
-        disabled: 'none',
-        lineStyle: {
-          width: 1
-        }
-      }
-    },
-    {
-      type: 'line',
-      data: ma30.value,
-      smooth: true,
-      symbol: 'none',
-      gridIndex: 0,
-      xAxisIndex: 0,
-      yAxisIndex: 0,
-      z: 5,
-      lineStyle: {
-        opacity: 1,
-        color: '#94C9B2',
-        width: 1
-      },
-      emphasis: {
-        focus: 'none',
-        scale: false,
-        disabled: 'none',
-        lineStyle: {
-          width: 1
-        }
-      }
-    }
-  )
+  
 }
 /**
  * MACD(传统分析)
  */
 function calculateMACD() {
+  
   let ema12 = 0
   let ema26 = 0
   let difVal = 0
@@ -302,65 +213,7 @@ function calculateMACD() {
   //   color: stockData[i][1] >= stockData[i][0] ? '#B9291E' : '#009900',
   //   borderColor: stockData[i][1] >= stockData[i][0] ? '#B9291E' : '#009900'
   // }
-  options.series.push(
-    {
-      gridIndex: 1,
-      xAxisIndex: 1,
-      yAxisIndex: 1,
-      type: 'bar',
-      data: macd.value,
-      barWidth: '60%',
-      smooth: true,
-      large: true, //大数据优化
-      largeThreshold: 200 //优化阈值
-    },
-    {
-      type: 'line',
-      data: dif.value,
-      smooth: true,
-      symbol: 'none',
-      gridIndex: 1,
-      xAxisIndex: 1,
-      yAxisIndex: 1,
-      z: 5,
-      lineStyle: {
-        opacity: 1,
-        color: '#A1A1A1',
-        width: 1
-      },
-      emphasis: {
-        focus: 'none',
-        scale: false,
-        disabled: 'none',
-        lineStyle: {
-          width: 1
-        }
-      }
-    },
-    {
-      type: 'line',
-      data: dea.value,
-      smooth: true,
-      symbol: 'none',
-      gridIndex: 1,
-      xAxisIndex: 1,
-      yAxisIndex: 1,
-      z: 5,
-      lineStyle: {
-        opacity: 1,
-        color: '#18179B',
-        width: 1
-      },
-      emphasis: {
-        focus: 'none',
-        scale: false,
-        disabled: 'none',
-        lineStyle: {
-          width: 1
-        }
-      }
-    }
-  )
+ 
 }
 /**
  * 初始化图表
@@ -373,9 +226,9 @@ function initChart(data:any) {
  
   // 年K只显示全部图表
   // （dataZoom显示的视图范围，数据多则从50% - 100%，数据少则从0% - 100%）
-  startValue.value = 60
+  startValue = 60
   if (xs.length <= 50) {
-    startValue.value = 60
+    startValue = 60
   }
   for (let i = 0; i < xs.length; i++) {
     
@@ -613,8 +466,8 @@ function initChart(data:any) {
       show: true,
       type: 'inside',
       xAxisIndex: [0, 1, 2, 3],
-      start: startValue.value,
-      end: endValue.value,
+      start: startValue,
+      end: endValue,
       filterMode: 'filter',
       moveOnMouseMove: !isOffset.value
     },
@@ -623,8 +476,8 @@ function initChart(data:any) {
       xAxisIndex: [0, 1, 2, 3],
       type: 'slider',
       bottom: '0%',
-      start: startValue.value,
-      end: endValue.value,
+      start: startValue,
+      end: endValue,
       height: 0,
       handleSize: 0,
       moveHandleSize: 0,
@@ -632,13 +485,50 @@ function initChart(data:any) {
     }
   ]
 
+  let markLineData:Array<any> = []
+  if(Number(line15) > 0){
+    markLineData.push({
+      yAxis: line15,
+      lineStyle: {
+        color: '#F09A37',
+        width:1
+      },
+      label: {
+        position: 'end',
+        color: '#F09A37',
+        fontSize: 10,
+        formatter: function (params: any) {
+          return fomatFloat(params.value, 2)
+        }
+      }
+    })
+  }
+
+  if(Number(line30) > 0){
+    markLineData.push({
+      yAxis: line30,
+      lineStyle: {
+        color: '#F09A37',
+        width:1
+
+      },
+      label: {
+        fontSize: 10,
+        color: '#F09A37',
+        position: 'end',
+        formatter: function (params: any) {
+          return fomatFloat(params.value, 2)
+        }
+      }
+    })
+  }
   options['series'] = [
     {
       gridIndex: 0,
       xAxisIndex: 0,
       yAxisIndex: 0,
       type: 'candlestick',
-      data: yDatas.value,
+      data: yDatas,
       barWidth: '60%',
       large: true, //大数据优化
       largeThreshold: 200, //优化阈值
@@ -690,39 +580,7 @@ function initChart(data:any) {
           opacity: 1,
           type: 'inherit'
         },
-        data: [
-          {
-            yAxis: line15,
-            lineStyle: {
-              color: '#F09A37',
-              width:1
-            },
-            label: {
-              position: 'end',
-              color: '#F09A37',
-              fontSize: 10,
-              formatter: function (params: any) {
-                return fomatFloat(params.value, 2)
-              }
-            }
-          },
-          {
-            yAxis: line30,
-            lineStyle: {
-              color: '#F09A37',
-              width:1
-
-            },
-            label: {
-              fontSize: 10,
-              color: '#F09A37',
-              position: 'end',
-              formatter: function (params: any) {
-                return fomatFloat(params.value, 2)
-              }
-            }
-          }
-        ]
+        data: markLineData
       },
     
     },
@@ -740,34 +598,161 @@ function initChart(data:any) {
     }
   ]
 
-  // options.series.push(
-  //   {
-  //     type: 'line',
-  //     data: line15,
-  //     smooth: true,
-  //     symbol: 'none',
-  //     gridIndex: 0,
-  //     xAxisIndex: 0,
-  //     yAxisIndex: 0,
-  //     z: 10,
-  //     lineStyle: {
-  //       opacity: 1,
-  //       color: '#AFAFAF',
-  //       width: 5
-  //     },
-  //     emphasis: {
-  //       focus: 'none',
-  //       scale: false,
-  //       disabled: 'none',
-  //       lineStyle: {
-  //         width: 1
-  //       }
-  //     }
-  //   }
-  // )
-
   calculateMA()
+  options.series.push(
+    {
+      type: 'line',
+      data: ma5.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 0,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      z: 5,
+      lineStyle: {
+        opacity: 1,
+        color: '#AFAFAF',
+        width: 1
+      },
+      emphasis: {
+        focus: 'none',
+        scale: false,
+        disabled: 'none',
+        lineStyle: {
+          width: 1
+        }
+      }
+    },
+    {
+      type: 'line',
+      data: ma10.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 0,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      z: 5,
+      lineStyle: {
+        opacity: 1,
+        color: '#9B37F6',
+        width: 1
+      },
+      emphasis: {
+        focus: 'none',
+        scale: false,
+        disabled: 'none',
+        lineStyle: {
+          width: 1
+        }
+      }
+    },
+    {
+      type: 'line',
+      data: ma20.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 0,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      z: 5,
+      lineStyle: {
+        opacity: 1,
+        color: '#F3B846',
+        width: 1
+      },
+      emphasis: {
+        focus: 'none',
+        scale: false,
+        disabled: 'none',
+        lineStyle: {
+          width: 1
+        }
+      }
+    },
+    {
+      type: 'line',
+      data: ma30.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 0,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      z: 5,
+      lineStyle: {
+        opacity: 1,
+        color: '#94C9B2',
+        width: 1
+      },
+      emphasis: {
+        focus: 'none',
+        scale: false,
+        disabled: 'none',
+        lineStyle: {
+          width: 1
+        }
+      }
+    }
+  )
   calculateMACD()
+  options.series.push(
+    {
+      gridIndex: 1,
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      type: 'bar',
+      data: macd.value,
+      barWidth: '60%',
+      smooth: true,
+      large: true, //大数据优化
+      largeThreshold: 200 //优化阈值
+    },
+    {
+      type: 'line',
+      data: dif.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 1,
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      z: 5,
+      lineStyle: {
+        opacity: 1,
+        color: '#A1A1A1',
+        width: 1
+      },
+      emphasis: {
+        focus: 'none',
+        scale: false,
+        disabled: 'none',
+        lineStyle: {
+          width: 1
+        }
+      }
+    },
+    {
+      type: 'line',
+      data: dea.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 1,
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      z: 5,
+      lineStyle: {
+        opacity: 1,
+        color: '#18179B',
+        width: 1
+      },
+      emphasis: {
+        focus: 'none',
+        scale: false,
+        disabled: 'none',
+        lineStyle: {
+          width: 1
+        }
+      }
+    }
+  )
   nextTick(() => {
     showCharts.value = true
   })
@@ -779,12 +764,12 @@ function start(event: any) {
     clearTimeout(timer.value)
   }
   (timer.value as any) = setTimeout(() => {
-    startValue.value = vchart.value.getOption().dataZoom[0].start
-    endValue.value = vchart.value.getOption().dataZoom[0].end
-    options.dataZoom[0].start = startValue.value
-    options.dataZoom[1].start = startValue.value
-    options.dataZoom[0].end = endValue.value
-    options.dataZoom[1].end = endValue.value
+    startValue = vchart.value.getOption().dataZoom[0].start
+    endValue = vchart.value.getOption().dataZoom[0].end
+    options.dataZoom[0].start = startValue
+    options.dataZoom[1].start = startValue
+    options.dataZoom[0].end = endValue
+    options.dataZoom[1].end = endValue
     vchart.value.setOption(options)
     event.preventDefault()
     isOffset.value = true
@@ -792,6 +777,7 @@ function start(event: any) {
     // options.dataZoom['moveOnMouseMove'] = !isOffset.value
   }, 800)
 }
+
 function end() {
   if (timer.value) {
     clearTimeout(timer.value)
@@ -804,10 +790,340 @@ function end() {
 
 }
 
+function onDataZoom(event:any){
+  if(event.batch){
+    startValue = event.batch[0].start
+    endValue = event.batch[0].end
+  }else{
+    startValue = event.start
+    endValue = event.end
+  }
+}
+
+
+async function loadNewData(){
+
+  const params = {code:stockCode}
+  const data:any = await postAPI('/sdata/narrow',params)
+  const day:string = data['day']
+  let total_amount = data['real']['total_amount']
+  const open_px = data['real']['open_px']
+  let last_px = data['real']['last_px']
+  const low_px = data['real']['low_px']
+  const high_px = data['real']['high_px']
+  count.value++
+
+  last_px = last_px + 0.2 * count.value++
+  total_amount = total_amount + 114226189 * count.value
+  const isRed = last_px >= open_px
+
+  yDatas.value[currentDateLength.value-1].value = {
+    value: [open_px, last_px, low_px, high_px],
+    itemStyle: {
+      color: isRed ? '#ffffff' : '#2B6619',
+      color0: isRed ? '#B9291E' : '#2B6619',
+      borderColor: isRed ? '#B9291E' : '#2B6619',
+      borderColor0: isRed ? '#B9291E' : '#2B6619'
+    }
+  }
+
+  if(xDates.value[currentDateLength.value -1] == day){
+    // 更新
+    console.log('更新')
+    if(vchart.value){
+      showVolumes.value[currentDateLength.value -1] = {
+        value: total_amount,
+        itemStyle: {
+          color: isRed ? '#B9291E' : '#2B6619',
+          borderColor: isRed ? '#B9291E' : '#2B6619'
+        }
+      }
+
+      yDatas.value[currentDateLength.value -1] = {
+        value: [open_px, last_px, low_px, high_px],
+        itemStyle: {
+          color: isRed ? '#ffffff' : '#2B6619',
+          color0: isRed ? '#B9291E' : '#2B6619',
+          borderColor: isRed ? '#B9291E' : '#2B6619',
+          borderColor0: isRed ? '#B9291E' : '#2B6619'
+        }
+      }
+      calculateMA()
+      //5
+      options.series[2] = {
+        type: 'line',
+        data: ma5.value,
+        smooth: true,
+        symbol: 'none',
+        gridIndex: 0,
+        xAxisIndex: 0,
+        yAxisIndex: 0,
+        z: 5,
+        lineStyle: {
+          opacity: 1,
+          color: '#AFAFAF',
+          width: 1
+        },
+        emphasis: {
+          focus: 'none',
+          scale: false,
+          disabled: 'none',
+          lineStyle: {
+            width: 1
+          }
+        }
+      }
+      // 10
+      options.series[3] = {
+        type: 'line',
+        data: ma10.value,
+        smooth: true,
+        symbol: 'none',
+        gridIndex: 0,
+        xAxisIndex: 0,
+        yAxisIndex: 0,
+        z: 5,
+        lineStyle: {
+          opacity: 1,
+          color: '#9B37F6',
+          width: 1
+        },
+        emphasis: {
+          focus: 'none',
+          scale: false,
+          disabled: 'none',
+          lineStyle: {
+            width: 1
+          }
+        }
+      }
+      // 20
+      options.series[4] = {
+        type: 'line',
+        data: ma20.value,
+        smooth: true,
+        symbol: 'none',
+        gridIndex: 0,
+        xAxisIndex: 0,
+        yAxisIndex: 0,
+        z: 5,
+        lineStyle: {
+          opacity: 1,
+          color: '#F3B846',
+          width: 1
+        },
+        emphasis: {
+          focus: 'none',
+          scale: false,
+          disabled: 'none',
+          lineStyle: {
+            width: 1
+          }
+        }
+      }
+      // 30
+      options.series[5] = {
+        type: 'line',
+        data: ma30.value,
+        smooth: true,
+        symbol: 'none',
+        gridIndex: 0,
+        xAxisIndex: 0,
+        yAxisIndex: 0,
+        z: 5,
+        lineStyle: {
+          opacity: 1,
+          color: '#94C9B2',
+          width: 1
+        },
+        emphasis: {
+          focus: 'none',
+          scale: false,
+          disabled: 'none',
+          lineStyle: {
+            width: 1
+          }
+        }
+      }
+
+      options.dataZoom[0] ={
+        show: true,
+        type: 'inside',
+        xAxisIndex: [0, 1, 2, 3],
+        start: startValue,
+        end: endValue,
+        filterMode: 'filter',
+        moveOnMouseMove: !isOffset.value
+      }
+
+      options.dataZoom[1] = {
+        show: false,
+        xAxisIndex: [0, 1, 2, 3],
+        type: 'slider',
+        bottom: '0%',
+        start: startValue,
+        end: endValue,
+        height: 0,
+        handleSize: 0,
+        moveHandleSize: 0,
+        filterMode: 'filter'
+      }
+
+      calculateMACD()
+   
+    }else{
+    // 添加
+    // 更新
+      showVolumes.value.push ({
+        value: total_amount,
+        itemStyle: {
+          color: isRed ? '#B9291E' : '#2B6619',
+          borderColor: isRed ? '#B9291E' : '#2B6619'
+        }
+      })
+
+      yDatas.value.push(
+        {
+          value: [open_px, last_px, low_px, high_px],
+          itemStyle: {
+            color: isRed ? '#ffffff' : '#2B6619',
+            color0: isRed ? '#B9291E' : '#2B6619',
+            borderColor: isRed ? '#B9291E' : '#2B6619',
+            borderColor0: isRed ? '#B9291E' : '#2B6619'
+          }
+        }
+      )
+      xDates.value.push(day)
+      currentDateLength.value =xDates.value.length
+
+      calculateMA()
+      //5
+      options.series[2] = {
+        type: 'line',
+        data: ma5.value,
+        smooth: true,
+        symbol: 'none',
+        gridIndex: 0,
+        xAxisIndex: 0,
+        yAxisIndex: 0,
+        z: 5,
+        lineStyle: {
+          opacity: 1,
+          color: '#AFAFAF',
+          width: 1
+        },
+        emphasis: {
+          focus: 'none',
+          scale: false,
+          disabled: 'none',
+          lineStyle: {
+            width: 1
+          }
+        }
+      }
+      // 10
+      options.series[3] = {
+        type: 'line',
+        data: ma10.value,
+        smooth: true,
+        symbol: 'none',
+        gridIndex: 0,
+        xAxisIndex: 0,
+        yAxisIndex: 0,
+        z: 5,
+        lineStyle: {
+          opacity: 1,
+          color: '#9B37F6',
+          width: 1
+        },
+        emphasis: {
+          focus: 'none',
+          scale: false,
+          disabled: 'none',
+          lineStyle: {
+            width: 1
+          }
+        }
+      }
+      // 20
+      options.series[4] = {
+        type: 'line',
+        data: ma20.value,
+        smooth: true,
+        symbol: 'none',
+        gridIndex: 0,
+        xAxisIndex: 0,
+        yAxisIndex: 0,
+        z: 5,
+        lineStyle: {
+          opacity: 1,
+          color: '#F3B846',
+          width: 1
+        },
+        emphasis: {
+          focus: 'none',
+          scale: false,
+          disabled: 'none',
+          lineStyle: {
+            width: 1
+          }
+        }
+      }
+      // 30
+      options.series[5] = {
+        type: 'line',
+        data: ma30.value,
+        smooth: true,
+        symbol: 'none',
+        gridIndex: 0,
+        xAxisIndex: 0,
+        yAxisIndex: 0,
+        z: 5,
+        lineStyle: {
+          opacity: 1,
+          color: '#94C9B2',
+          width: 1
+        },
+        emphasis: {
+          focus: 'none',
+          scale: false,
+          disabled: 'none',
+          lineStyle: {
+            width: 1
+          }
+        }
+      }
+      calculateMACD()
+      options.dataZoom[0] ={
+        show: true,
+        type: 'inside',
+        xAxisIndex: [0, 1, 2, 3],
+        start: startValue,
+        end: endValue,
+        filterMode: 'filter',
+        moveOnMouseMove: !isOffset.value
+      }
+
+      options.dataZoom[1] = {
+        show: false,
+        xAxisIndex: [0, 1, 2, 3],
+        type: 'slider',
+        bottom: '0%',
+        start: startValue,
+        end: endValue,
+        height: 0,
+        handleSize: 0,
+        moveHandleSize: 0,
+        filterMode: 'filter'
+      }
+
+    }
+
+
+  }
+}
+
 async function loadData(index:number){
-  console.log(stockCode)
-  console.log(line15)
-  console.log(line30)
 
   const params = {code:stockCode,index:index}
   const data = await postAPI('/sdata/kplStockLineData',params)
@@ -815,12 +1131,32 @@ async function loadData(index:number){
 
 }
 onBeforeMount(async () => {
-  loadData(0).then(data=>{
-    initChart(data)
-  }) 
+  if(stockCode == null){
+    return
+  }
+  const data = await loadData(0)
+  console.log(data)
+  initChart(data)
+  loadNewData()
+  // if(isCurrentTimeInRange()){
+   
+  // }
+  // console.log(isCurrentTimeInRange)
+
+  intervalId.value = setInterval(() => {
+    loadNewData()
+  }, 5 * 1000)
+
+})
+
+onUnmounted(()=>{
+  if(intervalId.value){
+    clearInterval(intervalId.value)
+  }
 })
 
 </script>
+
 <style scoped>
 .stock-chart {
   width: 100%;
