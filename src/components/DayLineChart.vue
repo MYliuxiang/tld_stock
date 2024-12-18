@@ -7,15 +7,16 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, reactive, onBeforeMount, nextTick, defineProps, onUnmounted } from 'vue'
+import { ref, reactive, onBeforeMount, nextTick, defineProps, onUnmounted, watch } from 'vue'
 import 'echarts'
 import VChart from 'vue-echarts'
 import { postAPI } from '@/service'
 
-const {stockCode, line15, line30} = defineProps<{stockCode:string,line15:string, line30:string}>()
+const {stockCode, line15, line30, newData} = defineProps<{stockCode:string,line15:string, line30:string, newData:any}>()
 const intervalId = ref()
+// const childData = toRef(newData)
 
-let count = ref<number>(0)
+// let count = ref<number>(0)
 
 // vchart组件的引用
 const vchart: any = ref(null)
@@ -801,327 +802,327 @@ function onDataZoom(event:any){
 }
 
 
-async function loadNewData(){
+// async function loadNewData(){
 
-  const params = {code:stockCode}
-  const data:any = await postAPI('/sdata/narrow',params)
-  const day:string = data['day']
-  let total_amount = data['real']['total_amount']
-  const open_px = data['real']['open_px']
-  let last_px = data['real']['last_px']
-  const low_px = data['real']['low_px']
-  const high_px = data['real']['high_px']
-  count.value++
+//   const params = {code:stockCode}
+//   const data:any = await postAPI('/sdata/narrow',params)
+//   const day:string = data['day']
+//   let total_amount = data['real']['total_amount']
+//   const open_px = data['real']['open_px']
+//   let last_px = data['real']['last_px']
+//   const low_px = data['real']['low_px']
+//   const high_px = data['real']['high_px']
+//   count.value++
 
-  last_px = last_px + 0.2 * count.value++
-  total_amount = total_amount + 114226189 * count.value
-  const isRed = last_px >= open_px
+//   last_px = last_px + 0.2 * count.value++
+//   total_amount = total_amount + 114226189 * count.value
+//   const isRed = last_px >= open_px
 
-  yDatas.value[currentDateLength.value-1].value = {
-    value: [open_px, last_px, low_px, high_px],
-    itemStyle: {
-      color: isRed ? '#ffffff' : '#2B6619',
-      color0: isRed ? '#B9291E' : '#2B6619',
-      borderColor: isRed ? '#B9291E' : '#2B6619',
-      borderColor0: isRed ? '#B9291E' : '#2B6619'
-    }
-  }
+//   yDatas.value[currentDateLength.value-1].value = {
+//     value: [open_px, last_px, low_px, high_px],
+//     itemStyle: {
+//       color: isRed ? '#ffffff' : '#2B6619',
+//       color0: isRed ? '#B9291E' : '#2B6619',
+//       borderColor: isRed ? '#B9291E' : '#2B6619',
+//       borderColor0: isRed ? '#B9291E' : '#2B6619'
+//     }
+//   }
 
-  if(xDates.value[currentDateLength.value -1] == day){
-    // 更新
-    console.log('更新')
-    if(vchart.value){
-      showVolumes.value[currentDateLength.value -1] = {
-        value: total_amount,
-        itemStyle: {
-          color: isRed ? '#B9291E' : '#2B6619',
-          borderColor: isRed ? '#B9291E' : '#2B6619'
-        }
-      }
+//   if(xDates.value[currentDateLength.value -1] == day){
+//     // 更新
+//     console.log('更新')
+//     if(vchart.value){
+//       showVolumes.value[currentDateLength.value -1] = {
+//         value: total_amount,
+//         itemStyle: {
+//           color: isRed ? '#B9291E' : '#2B6619',
+//           borderColor: isRed ? '#B9291E' : '#2B6619'
+//         }
+//       }
 
-      yDatas.value[currentDateLength.value -1] = {
-        value: [open_px, last_px, low_px, high_px],
-        itemStyle: {
-          color: isRed ? '#ffffff' : '#2B6619',
-          color0: isRed ? '#B9291E' : '#2B6619',
-          borderColor: isRed ? '#B9291E' : '#2B6619',
-          borderColor0: isRed ? '#B9291E' : '#2B6619'
-        }
-      }
-      calculateMA()
-      //5
-      options.series[2] = {
-        type: 'line',
-        data: ma5.value,
-        smooth: true,
-        symbol: 'none',
-        gridIndex: 0,
-        xAxisIndex: 0,
-        yAxisIndex: 0,
-        z: 5,
-        lineStyle: {
-          opacity: 1,
-          color: '#AFAFAF',
-          width: 1
-        },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
-      }
-      // 10
-      options.series[3] = {
-        type: 'line',
-        data: ma10.value,
-        smooth: true,
-        symbol: 'none',
-        gridIndex: 0,
-        xAxisIndex: 0,
-        yAxisIndex: 0,
-        z: 5,
-        lineStyle: {
-          opacity: 1,
-          color: '#9B37F6',
-          width: 1
-        },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
-      }
-      // 20
-      options.series[4] = {
-        type: 'line',
-        data: ma20.value,
-        smooth: true,
-        symbol: 'none',
-        gridIndex: 0,
-        xAxisIndex: 0,
-        yAxisIndex: 0,
-        z: 5,
-        lineStyle: {
-          opacity: 1,
-          color: '#F3B846',
-          width: 1
-        },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
-      }
-      // 30
-      options.series[5] = {
-        type: 'line',
-        data: ma30.value,
-        smooth: true,
-        symbol: 'none',
-        gridIndex: 0,
-        xAxisIndex: 0,
-        yAxisIndex: 0,
-        z: 5,
-        lineStyle: {
-          opacity: 1,
-          color: '#94C9B2',
-          width: 1
-        },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
-      }
+//       yDatas.value[currentDateLength.value -1] = {
+//         value: [open_px, last_px, low_px, high_px],
+//         itemStyle: {
+//           color: isRed ? '#ffffff' : '#2B6619',
+//           color0: isRed ? '#B9291E' : '#2B6619',
+//           borderColor: isRed ? '#B9291E' : '#2B6619',
+//           borderColor0: isRed ? '#B9291E' : '#2B6619'
+//         }
+//       }
+//       calculateMA()
+//       //5
+//       options.series[2] = {
+//         type: 'line',
+//         data: ma5.value,
+//         smooth: true,
+//         symbol: 'none',
+//         gridIndex: 0,
+//         xAxisIndex: 0,
+//         yAxisIndex: 0,
+//         z: 5,
+//         lineStyle: {
+//           opacity: 1,
+//           color: '#AFAFAF',
+//           width: 1
+//         },
+//         emphasis: {
+//           focus: 'none',
+//           scale: false,
+//           disabled: 'none',
+//           lineStyle: {
+//             width: 1
+//           }
+//         }
+//       }
+//       // 10
+//       options.series[3] = {
+//         type: 'line',
+//         data: ma10.value,
+//         smooth: true,
+//         symbol: 'none',
+//         gridIndex: 0,
+//         xAxisIndex: 0,
+//         yAxisIndex: 0,
+//         z: 5,
+//         lineStyle: {
+//           opacity: 1,
+//           color: '#9B37F6',
+//           width: 1
+//         },
+//         emphasis: {
+//           focus: 'none',
+//           scale: false,
+//           disabled: 'none',
+//           lineStyle: {
+//             width: 1
+//           }
+//         }
+//       }
+//       // 20
+//       options.series[4] = {
+//         type: 'line',
+//         data: ma20.value,
+//         smooth: true,
+//         symbol: 'none',
+//         gridIndex: 0,
+//         xAxisIndex: 0,
+//         yAxisIndex: 0,
+//         z: 5,
+//         lineStyle: {
+//           opacity: 1,
+//           color: '#F3B846',
+//           width: 1
+//         },
+//         emphasis: {
+//           focus: 'none',
+//           scale: false,
+//           disabled: 'none',
+//           lineStyle: {
+//             width: 1
+//           }
+//         }
+//       }
+//       // 30
+//       options.series[5] = {
+//         type: 'line',
+//         data: ma30.value,
+//         smooth: true,
+//         symbol: 'none',
+//         gridIndex: 0,
+//         xAxisIndex: 0,
+//         yAxisIndex: 0,
+//         z: 5,
+//         lineStyle: {
+//           opacity: 1,
+//           color: '#94C9B2',
+//           width: 1
+//         },
+//         emphasis: {
+//           focus: 'none',
+//           scale: false,
+//           disabled: 'none',
+//           lineStyle: {
+//             width: 1
+//           }
+//         }
+//       }
 
-      options.dataZoom[0] ={
-        show: true,
-        type: 'inside',
-        xAxisIndex: [0, 1, 2, 3],
-        start: startValue,
-        end: endValue,
-        filterMode: 'filter',
-        moveOnMouseMove: !isOffset.value
-      }
+//       options.dataZoom[0] ={
+//         show: true,
+//         type: 'inside',
+//         xAxisIndex: [0, 1, 2, 3],
+//         start: startValue,
+//         end: endValue,
+//         filterMode: 'filter',
+//         moveOnMouseMove: !isOffset.value
+//       }
 
-      options.dataZoom[1] = {
-        show: false,
-        xAxisIndex: [0, 1, 2, 3],
-        type: 'slider',
-        bottom: '0%',
-        start: startValue,
-        end: endValue,
-        height: 0,
-        handleSize: 0,
-        moveHandleSize: 0,
-        filterMode: 'filter'
-      }
+//       options.dataZoom[1] = {
+//         show: false,
+//         xAxisIndex: [0, 1, 2, 3],
+//         type: 'slider',
+//         bottom: '0%',
+//         start: startValue,
+//         end: endValue,
+//         height: 0,
+//         handleSize: 0,
+//         moveHandleSize: 0,
+//         filterMode: 'filter'
+//       }
 
-      calculateMACD()
+//       calculateMACD()
    
-    }else{
-    // 添加
-    // 更新
-      showVolumes.value.push ({
-        value: total_amount,
-        itemStyle: {
-          color: isRed ? '#B9291E' : '#2B6619',
-          borderColor: isRed ? '#B9291E' : '#2B6619'
-        }
-      })
+//     }else{
+//     // 添加
+//     // 更新
+//       showVolumes.value.push ({
+//         value: total_amount,
+//         itemStyle: {
+//           color: isRed ? '#B9291E' : '#2B6619',
+//           borderColor: isRed ? '#B9291E' : '#2B6619'
+//         }
+//       })
 
-      yDatas.value.push(
-        {
-          value: [open_px, last_px, low_px, high_px],
-          itemStyle: {
-            color: isRed ? '#ffffff' : '#2B6619',
-            color0: isRed ? '#B9291E' : '#2B6619',
-            borderColor: isRed ? '#B9291E' : '#2B6619',
-            borderColor0: isRed ? '#B9291E' : '#2B6619'
-          }
-        }
-      )
-      xDates.value.push(day)
-      currentDateLength.value =xDates.value.length
+//       yDatas.value.push(
+//         {
+//           value: [open_px, last_px, low_px, high_px],
+//           itemStyle: {
+//             color: isRed ? '#ffffff' : '#2B6619',
+//             color0: isRed ? '#B9291E' : '#2B6619',
+//             borderColor: isRed ? '#B9291E' : '#2B6619',
+//             borderColor0: isRed ? '#B9291E' : '#2B6619'
+//           }
+//         }
+//       )
+//       xDates.value.push(day)
+//       currentDateLength.value =xDates.value.length
 
-      calculateMA()
-      //5
-      options.series[2] = {
-        type: 'line',
-        data: ma5.value,
-        smooth: true,
-        symbol: 'none',
-        gridIndex: 0,
-        xAxisIndex: 0,
-        yAxisIndex: 0,
-        z: 5,
-        lineStyle: {
-          opacity: 1,
-          color: '#AFAFAF',
-          width: 1
-        },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
-      }
-      // 10
-      options.series[3] = {
-        type: 'line',
-        data: ma10.value,
-        smooth: true,
-        symbol: 'none',
-        gridIndex: 0,
-        xAxisIndex: 0,
-        yAxisIndex: 0,
-        z: 5,
-        lineStyle: {
-          opacity: 1,
-          color: '#9B37F6',
-          width: 1
-        },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
-      }
-      // 20
-      options.series[4] = {
-        type: 'line',
-        data: ma20.value,
-        smooth: true,
-        symbol: 'none',
-        gridIndex: 0,
-        xAxisIndex: 0,
-        yAxisIndex: 0,
-        z: 5,
-        lineStyle: {
-          opacity: 1,
-          color: '#F3B846',
-          width: 1
-        },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
-      }
-      // 30
-      options.series[5] = {
-        type: 'line',
-        data: ma30.value,
-        smooth: true,
-        symbol: 'none',
-        gridIndex: 0,
-        xAxisIndex: 0,
-        yAxisIndex: 0,
-        z: 5,
-        lineStyle: {
-          opacity: 1,
-          color: '#94C9B2',
-          width: 1
-        },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
-      }
-      calculateMACD()
-      options.dataZoom[0] ={
-        show: true,
-        type: 'inside',
-        xAxisIndex: [0, 1, 2, 3],
-        start: startValue,
-        end: endValue,
-        filterMode: 'filter',
-        moveOnMouseMove: !isOffset.value
-      }
+//       calculateMA()
+//       //5
+//       options.series[2] = {
+//         type: 'line',
+//         data: ma5.value,
+//         smooth: true,
+//         symbol: 'none',
+//         gridIndex: 0,
+//         xAxisIndex: 0,
+//         yAxisIndex: 0,
+//         z: 5,
+//         lineStyle: {
+//           opacity: 1,
+//           color: '#AFAFAF',
+//           width: 1
+//         },
+//         emphasis: {
+//           focus: 'none',
+//           scale: false,
+//           disabled: 'none',
+//           lineStyle: {
+//             width: 1
+//           }
+//         }
+//       }
+//       // 10
+//       options.series[3] = {
+//         type: 'line',
+//         data: ma10.value,
+//         smooth: true,
+//         symbol: 'none',
+//         gridIndex: 0,
+//         xAxisIndex: 0,
+//         yAxisIndex: 0,
+//         z: 5,
+//         lineStyle: {
+//           opacity: 1,
+//           color: '#9B37F6',
+//           width: 1
+//         },
+//         emphasis: {
+//           focus: 'none',
+//           scale: false,
+//           disabled: 'none',
+//           lineStyle: {
+//             width: 1
+//           }
+//         }
+//       }
+//       // 20
+//       options.series[4] = {
+//         type: 'line',
+//         data: ma20.value,
+//         smooth: true,
+//         symbol: 'none',
+//         gridIndex: 0,
+//         xAxisIndex: 0,
+//         yAxisIndex: 0,
+//         z: 5,
+//         lineStyle: {
+//           opacity: 1,
+//           color: '#F3B846',
+//           width: 1
+//         },
+//         emphasis: {
+//           focus: 'none',
+//           scale: false,
+//           disabled: 'none',
+//           lineStyle: {
+//             width: 1
+//           }
+//         }
+//       }
+//       // 30
+//       options.series[5] = {
+//         type: 'line',
+//         data: ma30.value,
+//         smooth: true,
+//         symbol: 'none',
+//         gridIndex: 0,
+//         xAxisIndex: 0,
+//         yAxisIndex: 0,
+//         z: 5,
+//         lineStyle: {
+//           opacity: 1,
+//           color: '#94C9B2',
+//           width: 1
+//         },
+//         emphasis: {
+//           focus: 'none',
+//           scale: false,
+//           disabled: 'none',
+//           lineStyle: {
+//             width: 1
+//           }
+//         }
+//       }
+//       calculateMACD()
+//       options.dataZoom[0] ={
+//         show: true,
+//         type: 'inside',
+//         xAxisIndex: [0, 1, 2, 3],
+//         start: startValue,
+//         end: endValue,
+//         filterMode: 'filter',
+//         moveOnMouseMove: !isOffset.value
+//       }
 
-      options.dataZoom[1] = {
-        show: false,
-        xAxisIndex: [0, 1, 2, 3],
-        type: 'slider',
-        bottom: '0%',
-        start: startValue,
-        end: endValue,
-        height: 0,
-        handleSize: 0,
-        moveHandleSize: 0,
-        filterMode: 'filter'
-      }
+//       options.dataZoom[1] = {
+//         show: false,
+//         xAxisIndex: [0, 1, 2, 3],
+//         type: 'slider',
+//         bottom: '0%',
+//         start: startValue,
+//         end: endValue,
+//         height: 0,
+//         handleSize: 0,
+//         moveHandleSize: 0,
+//         filterMode: 'filter'
+//       }
 
-    }
+//     }
 
 
-  }
-}
+//   }
+// }
 
 async function loadData(index:number){
 
@@ -1130,22 +1131,31 @@ async function loadData(index:number){
   return data
 
 }
+
+watch(newData,(newValue,oldValue)=>{
+  console.log(newValue,oldValue)
+  console.log('刷新了')
+})
+
 onBeforeMount(async () => {
   if(stockCode == null){
     return
   }
   const data = await loadData(0)
-  console.log(data)
   initChart(data)
-  loadNewData()
-  // if(isCurrentTimeInRange()){
-   
-  // }
-  // console.log(isCurrentTimeInRange)
 
-  intervalId.value = setInterval(() => {
-    loadNewData()
-  }, 5 * 1000)
+
+  console.log(333)
+
+  // loadNewData()
+  // // if(isCurrentTimeInRange()){
+   
+  // // }
+  // // console.log(isCurrentTimeInRange)
+
+  // intervalId.value = setInterval(() => {
+  //   loadNewData()
+  // }, 5 * 1000)
 
 })
 
