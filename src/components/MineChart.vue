@@ -192,33 +192,33 @@ let options = reactive({
     {
       show: false,
       id: 'gd1',
-      top: '4%',
-      left: '4%',
-      right: '4%',
+      top: '1%',
+      left: '0.1%',
+      right: '0.1%',
       bottom: '40%'
     },
     {
       show: false,
       id: 'gd2',
-      top: '4%',
-      left: '4%',
-      right: '4%',
+      top: '1%',
+      left: '0.1%',
+      right: '0,1%',
       bottom: '40%'
     },
     {
       show: false,
       id: 'gd3',
       top: '60%',
-      left: '4%',
-      right: '4%',
+      left: '0.1%',
+      right: '0.1%',
       bottom: '8%'
     },
     {
       show: true,
       id: 'gd4',
-      top: '4%',
-      left: '4%',
-      right: '4%',
+      top: '1%',
+      left: '0.1%',
+      right: '0.1%',
       bottom: '8%',
       borderColor: '#2b2f39'
     }
