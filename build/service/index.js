@@ -1,13 +1,13 @@
-import request from '@/service/request';
+import service from '@/service/request';
 export const getAPI = (url, data) => {
-    return request({
+    return service({
         url: url,
         method: 'get',
         params: data,
     });
 };
 export const postAPI = (url, data) => {
-    return request({
+    return service({
         url: url,
         method: 'post',
         data: data,

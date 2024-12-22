@@ -1,5 +1,4 @@
 <template>
-  <div>{{count}}</div>
   <div class="stock-chart">
     
     <div class="stock-chart-box" @touchstart="start($event)" @touchend="end">
@@ -14,8 +13,8 @@ import 'echarts'
 import VChart from 'vue-echarts'
 import { postAPI } from '@/service'
 
-const {stockCode, line15, line30, stockData, count} = defineProps<{stockCode:string,line15:string, 
-  line30:string, stockData:any, count:string}>()
+const {stockCode, line15, line30, stockData,} = defineProps<{stockCode:string,line15:string, 
+  line30:string, stockData:any}>()
 const intervalId = ref()
 // const childData = toRef(newData)
 
@@ -373,11 +372,11 @@ function initChart(data:any) {
       splitNumber: 3,
       // interval: yDatas.value[0]?.value[0] || yDatas.value[0][0],
       axisLabel: {
-        fontSize: 8,
+        fontSize: 10,
         color: '#CCCCCC',
         show:true,
         inside:true,
-        margin:2
+        margin:5
       },
       axisLine: {
         show: true,
@@ -400,7 +399,7 @@ function initChart(data:any) {
       show: true,
       gridIndex: 1,
       scale: true,
-      boundaryGap: ['10%', '10%'],
+      // boundaryGap: ['10%', '10%'],
       z: 5,
       // min:0,
       splitNumber: 1,
@@ -495,6 +494,8 @@ function initChart(data:any) {
         position: 'end',
         color: '#F09A37',
         fontSize: 10,
+        // padding:[0, 0, 0, 5],
+
         formatter: function (params: any) {
           return fomatFloat(params.value, 2)
         }
@@ -514,6 +515,8 @@ function initChart(data:any) {
         fontSize: 10,
         color: '#F09A37',
         position: 'end',
+        // padding:[0, 0, 0, 5],
+
         formatter: function (params: any) {
           return fomatFloat(params.value, 2)
         }
@@ -819,21 +822,13 @@ function onDataZoom(event:any){
 
 function handleNewData(newData:any){
   const day:string = newData['day']
-  let total_amount = newData['real']['total_amount']
   const open_px = newData['real']['open_px']
+  let total_amount = newData['real']['total_amount']
   let last_px = newData['real']['last_px']
   const low_px = newData['real']['low_px']
   const high_px = newData['real']['high_px']
   const isRed = last_px >= open_px
-  yDatas.value[currentDateLength.value-1].value = {
-    value: [open_px, last_px, low_px, high_px],
-    itemStyle: {
-      color: isRed ? '#ffffff' : '#2B6619',
-      color0: isRed ? '#B9291E' : '#2B6619',
-      borderColor: isRed ? '#B9291E' : '#2B6619',
-      borderColor0: isRed ? '#B9291E' : '#2B6619'
-    }
-  }
+ 
   if(xDates.value[currentDateLength.value -1] == day){
     // 更新
     console.log('更新')
@@ -1153,15 +1148,10 @@ async function loadData(index:number){
 
 }
 
-watch(()=>stockData,(newValue,oldValue)=>{
-  console.log(newValue,oldValue)
+watch(()=>stockData,(newValue)=>{
   handleNewData(newValue)
-  console.log('更新了数据')
-})
+},{deep:true})
 
-watch(()=>stockData,(newValue,oldValue)=>{
-  console.log(newValue,oldValue)
-})
 
 onBeforeMount(async () => {
   if(stockCode == null){
@@ -1182,8 +1172,8 @@ onUnmounted(()=>{
 <style scoped>
 .stock-chart {
   width: 100%;
-  height: 85vh;
-  background-color: #FFFFFF;
+  height: 100%;
+  background-color: #ffffff;
 }
 .stock-chart-box {
   position: relative;

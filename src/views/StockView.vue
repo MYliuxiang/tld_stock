@@ -51,7 +51,7 @@
                         </el-row>
                         <el-row :gutter="8" justify="space-between">
                             <label class="grad">距离</label>
-                            <label class="contenr">{{diff}}</label>
+                            <label class="contenr" :style="{color:diffColor}">{{diff + 'cm'}}</label>
                         </el-row>
                     </el-col> 
                 </el-row>
@@ -59,16 +59,17 @@
     </el-header>
         
     <el_main> 
-        <div> 
-            <el-tabs v-model="activeName" class="stock-tabs" @tab-click="handleClick">
-                <el-tab-pane label="分时" name="first" lazy="false">
-                    <MineChart :stockCode="code" :line15="line15" :line30="line30" :classID='"stockview" + "1"' /></el-tab-pane>
-                <!-- <el-tab-pane label="五日" name="second" lazy="false">
-                    <FiveDayMineChart :stockCode="code" :line15="line15" :line30="line30" :classID='"stockview" + "2"'/></el-tab-pane> -->
-                <el-tab-pane label="日线" name="third" lazy="false">
-                    <DayLineChart :stockCode="code" :line15="line15" :line30="line30" :stockData="stockData" :count="count"/></el-tab-pane> 
-            </el-tabs> 
-        </div>
+      <el-tabs v-model="activeName" class="stock-tabs" @tab-click="handleClick">
+        <el-tab-pane class="content" label="分时" name="first" lazy=false> 
+          <MineChart :stockCode="code" :line15="line15" :line30="line30" :classID='"stockview" + "1"' />
+        </el-tab-pane>
+        <el-tab-pane class="content" label="五日" name="second" lazy=false>
+          <FiveDayMineChart  :stockCode="code" :line15="line15" :line30="line30" :classID='"stockview" + "2"'/>
+        </el-tab-pane>
+        <el-tab-pane class="content" label="日线" name="third" lazy=false>
+          <DayLineChart :stockCode="code" :line15="line15" :line30="line30" :stockData="stockData.value"/>
+        </el-tab-pane> 
+      </el-tabs> 
     </el_main>
    </el-container>
 </template>
@@ -82,7 +83,6 @@ import { grayColor, greenColor, redColor } from '@/color'
 import { handFixed, handNumber } from '@/tools'
 
 const intervalId = ref()
-let count = ref<number>(1)
 const code = getQueryString('code') as string
 const line15 = getQueryString('line15') as string
 const line30 = getQueryString('line30') as string
@@ -93,6 +93,7 @@ const zdColor = ref<string>('#323232')
 const highColor = ref<string>('#323232')
 const lowColor = ref<string>('#323232')
 const openColor = ref<string>('#323232')
+const diffColor = ref<string>('#323232')
 
 
 //最新价
@@ -133,10 +134,11 @@ onBeforeMount(async () => {
   if(code == null){
     return
   }
+  loadNewData()
+
   // if(isCurrentTimeInRange()){
    
   // }
-  loadNewData()
   intervalId.value = setInterval(() => {
     loadNewData()
   }, 5 * 1000)
@@ -149,16 +151,11 @@ onUnmounted(()=>{
   }
 })
 
-
-
 async function loadNewData(){
-  console.log('定时器')
 
   const params = {code:code}
   const data:any = await postAPI('/sdata/narrow',params)
-  count.value++
-  data['real']['last_px'] = data['real']['last_px'] + count.value * 0.02
-
+  // data['real']['last_px'] = data['real']['last_px'] + count.value * 0.02
   stockData.value = data
   const preclose_px = data['preclose_px']
   last_px.value = handFixed(data['real']['last_px'])
@@ -205,6 +202,18 @@ async function loadNewData(){
   total_turnover.value = handNumber(data['real']['total_turnover'])
 
   //diff
+  if(Number(line30) > 0){
+    diff.value = ((parseFloat(last_px.value)  - parseFloat(line30)) / parseFloat(line30) * 100).toFixed(2)
+  }
+  if(parseFloat(last_px.value) > 0){
+    diffColor.value = '#439629'
+  }else if(parseFloat(last_px.value) ==0){
+    diffColor.value = '#323232'
+
+  }else{
+    diffColor.value = '#EA392C'
+
+  }
   
 }
 
@@ -238,9 +247,9 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
     padding: 0px;
     margin-right: 0px;
     margin-left: 10px;
-    margin-top: 20px;
+    margin-top: 0px;
     width: 25px;
-    height: 20px;
+    height: 40px;
 }
 
 .el-tabs__header{
@@ -251,6 +260,7 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
     margin-right: 0px !important;
     margin-left: 0px !important;
     padding: 0 !important;
+    height: 90px;
 
 }
 
@@ -260,7 +270,11 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 }
 
 .div{
-    margin-top: 10px;
+  margin-top: 10px;
+}
+
+.content{
+  height: calc(100vh - 130px);
 }
 
 .grad{

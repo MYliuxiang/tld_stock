@@ -34,6 +34,7 @@ service.interceptors.response.use(
     }
     else {
         ElMessage.error(message);
+        return Promise.reject('message');
     }
 }, (error) => {
     if (error.response &&

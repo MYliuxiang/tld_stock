@@ -5,30 +5,47 @@
       <v-chart ref="vchart" v-if="showCharts" :option="options" :update-options="{ notMerge: true }" />
 
       <div class="fix-date">
-        <div v-for="(item, index) in xDates">{{ item.slice(5, 10) }}</div>
+        <div v-for="item in xDates" :key="item">{{ item.slice(5, 10) }}</div>
       </div>
     </div>
   </div>
 </template>
-
 <script lang="ts" setup>
 import { ref, reactive, nextTick, onBeforeMount, onBeforeUnmount } from 'vue'
 import 'echarts'
 import VChart from 'vue-echarts'
+import { postAPI } from '@/service'
+
+
+const intervalId = ref()
+
+const {stockCode, line15, line30} = defineProps<{stockCode:string,line15:string, 
+  line30:string}>()
 // vchart组件的引用
 const vchart = ref<any>(null)
 // 昨日收盘价
 let close = ref<number>(0)
 // 现价数据
-let prices = ref<number[]>([])
+let prices = ref<any[]>([])
+let prices1 = ref<any[]>([])
+let prices2 = ref<any[]>([])
+let prices3 = ref<any[]>([])
+let prices4 = ref<any[]>([])
+let prices5 = ref<any[]>([])
+
 // 均价数据
 let avgPrices = ref<number[]>([])
+let avgPrices1 = ref<any[]>([])
+let avgPrices2 = ref<any[]>([])
+let avgPrices3 = ref<any[]>([])
+let avgPrices4 = ref<any[]>([])
+let avgPrices5 = ref<any[]>([])
+
 // 成交量
 let volumes = ref<number[]>([])
 // 涨跌幅
-let ratios = ref<number[]>([])
 // 涨跌额
-let pcts = ref<number[]>([])
+// let pcts = ref<number[]>([])
 // 最高价
 let limitUp = ref<number>(0)
 // 最低价
@@ -44,50 +61,70 @@ let showCharts = ref<boolean>(false)
 // 交易日期数据
 let xDates = ref<string[]>([])
 // 交易时间数据
-let xTimes: string[] = initTime()
+let xTimes: string[] = []
 
 // 当前时间现价的闪烁点
-let pricesEffectScatter = [] as any[]
+// let pricesEffectScatter = [] as any[]
 
 // 图表配置项
 let options = reactive({
   animation: false,
   grid: [
-    {
-      show: false,
+    { 
+      show: true,
       id: 'gd1',
-      top: '7%',
-      left: '5%',
-      right: '5%',
-      bottom: '40%'
-    },
-    {
-      show: false,
-      id: 'gd2',
-      top: '7%',
-      left: '5%',
-      right: '5%',
-      bottom: '40%'
-    },
-    {
-      show: false,
-      id: 'gd3',
-      top: '60%',
-      left: '5%',
-      right: '5%',
-      bottom: '7%'
+      top: '1%',
+      left: '0.1%',
+      right: '0.1%',
+      bottom: '41%'
     },
     {
       show: true,
-      id: 'gd4',
-      top: '7%',
-      left: '5%',
-      right: '5%',
-      bottom: '7%',
-      borderColor: '#2B2F39'
-    }
+      id: 'gd2',
+      top: '60%',
+      left: '0.1%',
+      right: '0.2%',
+      bottom: '3%'
+    },
+   
   ],
-  color: ['#FF3232', '#FFCE37'],
+  tooltip: {
+    show: true,
+    trigger: 'none',
+    axisPointer: {
+      type: 'cross',
+      animation: false,
+      snap: true,
+      z: 999,
+      crossStyle: {
+        type: 'solid',
+        width: 0.5
+      },
+      lineStyle: {
+        type: 'solid',
+        width: 0.5
+      },
+      fontSize: 10,
+      label: {
+        color: '#ffffff',
+        backgroundColor: '#6E7079',
+        // precision: 2,
+        // padding: [5, 10, 5, 7],
+        formatter: function (val: any) {
+          if ((val.axisIndex == 0 ) && val.axisDimension == 'x') {
+            return ''
+          } else if (val.axisDimension == 'y') {
+            return ''
+          } else {
+            let ri = val.value
+            return ri
+          }
+        }
+      }
+    },
+  },
+  axisPointer: { link: [{ xAxisIndex: 'all' }] },
+  color: ['#B9291E', '#009900'],
   blendMode: 'source-over',
   xAxis: [] as any[],
   yAxis: [] as any[],
@@ -98,37 +135,106 @@ function fomatFloat(src: any, pos = 2) {
   return Math.round(src * Math.pow(10, pos)) / Math.pow(10, pos)
 }
 
-const initChart = () => {
-  limitUp.value = 12.05
-  limitDown.value = 11.22
-  close.value = 11.81
-  let stockData: any = {}
-  for (let key in stockData) {
-    xDates.value.push(key)
-    let length = 0
-    stockData[key].forEach((item: any, index: any, array: any) => {
-      length = index + 1
-      prices.value.push(item[1])
-      avgPrices.value.push(item[7])
-      volumes.value.push(item[4])
-      pcts.value.push(item[9])
-      ratios.value.push(item[10])
-    })
-    if (length < 241) {
-      length = 241 - length
-      console.log(length)
-    }
-    let timeList = initTime()
-    xTimes.push(...timeList)
-  }
+const initChart = (data:any) => {
+  
+  console.log(data)
+  let list:[any] = data['List']
 
+  close.value = data['List'][1]['preclose_px']
+  prices.value =[]
+  avgPrices.value =[]
+  volumes.value =[]
+  let high = 0
+  let low = 10000
+  let index = 0
+  list.forEach((item:any) => {
+    xDates.value.push(item['day'])
+    const hprice = item['hprice']
+    const lprice = item['lprice']
+    high = hprice > high ? hprice:high
+    low = low < lprice ? low:lprice
+    item['trend'].forEach((obj: any) => {
+      xTimes.push(obj[0])
+      prices.value.push(obj[1])
+      if(index == 0){
+        prices1.value.push(obj[1]) 
+        prices2.value.push(null)
+        prices3.value.push(null)
+        prices4.value.push(null)
+        prices5.value.push(null)
+
+        avgPrices1.value.push(obj[2]) 
+        avgPrices2.value.push(null)
+        avgPrices3.value.push(null)
+        avgPrices4.value.push(null)
+        avgPrices5.value.push(null)
+      }else if(index <= 1){
+        prices1.value.push()
+        prices2.value.push(obj[1])
+        prices3.value.push(null)
+        prices4.value.push(null)
+        prices5.value.push(null)
+
+        avgPrices1.value.push()
+        avgPrices2.value.push(obj[2])
+        avgPrices3.value.push(null)
+        avgPrices4.value.push(null)
+        avgPrices5.value.push(null)
+      }else if(index <= 2){
+        prices1.value.push(null)
+        prices2.value.push(null)
+        prices3.value.push(obj[1])
+        prices4.value.push(null)
+        prices5.value.push(null)
+
+        avgPrices1.value.push(null)
+        avgPrices2.value.push(null)
+        avgPrices3.value.push(obj[2])
+        avgPrices4.value.push(null)
+        avgPrices5.value.push(null)
+      }else if(index <= 3){
+        prices1.value.push(null)
+        prices2.value.push(null)
+        prices3.value.push(null)
+        prices4.value.push(obj[1])
+        prices5.value.push(null)
+
+        avgPrices1.value.push(null)
+        avgPrices2.value.push(null)
+        avgPrices3.value.push(null)
+        avgPrices4.value.push(obj[2])
+        avgPrices5.value.push(null)
+      }else{
+        prices1.value.push(null)
+        prices2.value.push(null)
+        prices3.value.push(null)
+        prices4.value.push(null)
+        prices5.value.push(obj[1])
+
+        avgPrices1.value.push(null)
+        avgPrices2.value.push(null)
+        avgPrices3.value.push(null)
+        avgPrices4.value.push(null)
+        avgPrices5.value.push(obj[2])
+      }
+      avgPrices.value.push(obj[2])
+      volumes.value.push(obj[3])
+    })
+    index++
+
+  })
+
+  limitUp.value = high
+  limitDown.value = low
+
+  //16.69 16.15
   // 闪烁点
-  pricesEffectScatter = [
-    {
-      value: [prices.value.length, prices.value[prices.value.length - 1]],
-      symbolSize: 5
-    }
-  ]
+  // pricesEffectScatter = [
+  //   {
+  //     value: [prices.value.length, prices.value[prices.value.length - 1]],
+  //     symbolSize: 5
+  //   }
+  // ]
 
   // 现价图图表四角的数据
   // 最大差值：昨日收盘价 - 股票信息中的最高价 对比 昨日收盘价 - 股票信息中的最低价 取绝对值 ，两者哪个相差比较大就用哪个差值
@@ -145,120 +251,58 @@ const initChart = () => {
   options['xAxis'] = [
     {
       //主图
-      show: true,
       gridIndex: 0,
-      min: 0,
-      max: 1205,
-      interval: 241,
-      type: 'category',
-      splitNumber: 4,
-      data: xTimes,
-      boundaryGap: true,
-      axisLine: {
-        lineStyle: {
-          color: '#2B2F39'
-        }
-      },
-      axisLabel: {
-        show: false
-      },
-      axisTick: {
-        show: false
-      },
-      axisPointer: {
-        fontSize: 10,
-        label: {
-          show: false
-        }
-      },
-      splitLine: {
-        show: true,
-        interval: 240,
-        lineStyle: {
-          color: '#2B2F39',
-          width: 1
-        }
-      }
-    },
-    {
-      gridIndex: 1,
-      show: false,
-      min: 0,
-      max: 1205,
-      interval: 241,
-      splitNumber: 20,
-      data: xTimes,
-      axisLabel: {
-        show: false
-      },
-      axisPointer: {
-        fontSize: 10,
-        label: {
-          show: false
-        }
-      },
-      splitLine: {
-        show: false
-      }
-    },
-    {
       show: true,
-      gridIndex: 2,
-      min: 0,
-      max: 1205,
-      interval: 241,
       type: 'category',
-      splitNumber: 240,
-      axisLabel: {
-        show: false,
-        fontSize: 12,
-        color: '#bcbcbc',
-        interval: 240,
-        padding: [0, 0, 0, 80]
-      },
       data: xTimes,
       axisLine: {
+        lineStyle: {
+          color: '#2b2f39'
+        }
+      },
+      axisLabel: {
         show: false
       },
       axisTick: {
         show: false
       },
       axisPointer: {
-        show: true,
+        fontSize: 10,
         label: {
-          color: '#ffffff',
-          backgroundColor: '#6E7079',
-          fontSize: 10
-        },
-        lineStyle: {
-          type: 'solid',
-          width: 0.5
+          show: false
         }
       },
       splitLine: {
         show: true,
-        interval: 240,
+        interval: 48,
         lineStyle: {
-          color: '2B2F39',
+          color: '#cccccc',
           width: 1
         }
       }
     },
     {
-      show: false,
-      gridIndex: 3,
-      min: 0,
-      max: 1205,
+      //交易量图
+      show: true,
+      gridIndex: 1,
       type: 'category',
-      interval: 240,
+      // max: 240,
       axisLabel: {
-        show: false,
+        color: '#bcbcbc',
         fontSize: 10,
-        color: '#FC8952',
-        interval: 240
-      },
-      splitLine: {
-        show: false
+        interval: 48,
+        margin:5,
+        // formatter: function (value: any, index: any) {
+        //   if (index === 0) {
+        //     return '      9:30'
+        //   } else if (index === 120) {
+        //     return '11:30'
+        //   } else if (index === 240) {
+        //     return '15:00          '
+        //   } else {
+        //     return ''
+        //   }
+        // }
       },
       data: xTimes,
       axisLine: {
@@ -278,21 +322,30 @@ const initChart = () => {
           type: 'solid',
           width: 0.5
         }
+      },
+      splitLine: {
+        show: true,
+        interval: 48,
+        lineStyle: {
+          color: '#cccccc',
+          width: 1
+        }
       }
-    }
+    }, 
   ]
   options['yAxis'] = [
     {
       show: true,
       scale: true,
       gridIndex: 0,
-      boundaryGap: false,
-      min: limitDown,
-      max: limitUp,
+      min: limitDown.value,
+      max: limitUp.value,
+      interval:(limitUp.value - limitDown.value) / 4,
+
       axisLabel: {
         show: false,
         inside: false,
-        fontSize: 10,
+        fontSize: 20,
         color: function (value: any) {
           if (value == close.value) {
             return '#CCCCCC'
@@ -305,7 +358,7 @@ const initChart = () => {
         show: false
       },
       splitLine: {
-        show: false
+        show: true
       },
       axisPointer: {
         show: true,
@@ -323,128 +376,104 @@ const initChart = () => {
         }
       }
     },
+  
     {
       show: false,
-      scale: true,
       gridIndex: 1,
-      min: pctChangeDown.value,
-      max: pctChangeUp.value,
-      position: 'right',
-      z: 3,
-      axisLine: {
-        show: false
-      },
-      axisTick: {
-        show: false
-      },
-      axisLabel: {
-        inside: false,
-        fontSize: 10,
-        formatter: function (value: any) {
-          return value + '%'
-        }
-      },
-      splitLine: {
-        //分割线设置
-        show: false,
-        lineStyle: {
-          color: '#181a23',
-          width: 1
-        }
-      },
-      axisPointer: {
-        show: true,
-        label: {
-          color: '#ffffff',
-          backgroundColor: '#6E7079',
-          fontSize: 10,
-          formatter: function ({ value }: any) {
-            return value.toFixed(2) + '%'
-          }
-        },
-        lineStyle: {
-          type: 'solid',
-          width: 0.5
-        }
-      }
-    },
-    {
-      show: false,
-      gridIndex: 2,
-      z: 4,
+      z: 1,
       scale: true,
       type: 'value',
-      splitNumber: 1,
+      splitNumber: 2,
       axisTick: {
         show: false
       },
       splitLine: {
-        show: false,
-        lineStyle: {
-          color: '#FC8952',
-          width: 1
-        }
+        show: true,
+        
       },
       axisLine: {
         show: false
       },
       axisLabel: {
-        color: '#FC8952',
-        fontSize: 10,
-        formatter: function (value: any) {
-          return fomatFloat(value / 10000, 0) + '万'
-        }
+        show:false
       },
       axisPointer: {
-        fontSize: 10,
         label: {
+          fontSize:10,
           formatter: function ({ value }: any) {
-            return fomatFloat(value / 10000, 0) + '万'
+            return fomatFloat(value / 10000, 0).toFixed(2) + '万'
           }
         },
         lineStyle: {
           type: 'solid',
           width: 0.5
         }
-      }
-    },
-    {
-      show: false,
-      position: 'right',
-      gridIndex: 3,
-      z: 5,
-      scale: true,
-      axisLine: {
-        show: false
-      },
-      axisTick: {
-        show: false
-      },
-      axisLabel: {
-        show: false,
-        fontSize: '12'
-      },
-      splitLine: {
-        show: false
       }
     }
   ]
+
+  let markLineData:Array<any> = []
+  if(Number(line15) > 0){
+    markLineData.push({
+      yAxis: line15,
+      lineStyle: {
+        color: '#F09A37',
+        width:1,
+        type: 'solid'
+
+      },
+      label: {
+        position: 'end',
+        color: '#F09A37',
+        fontSize: 10,
+        // padding:[0, 0, 0, 16],
+        formatter: function (params: any) {
+          return fomatFloat(params.value, 2)
+        }
+      }
+    })
+  }
+
+  if(Number(line30) > 0){
+    markLineData.push({
+      yAxis: line30,
+      lineStyle: {
+        color: '#F09A37',
+        width:1,     
+        type: 'solid'
+
+
+      },
+      label: {
+        fontSize: 10,
+        color: '#F09A37',
+        position: 'end',
+        // padding:[0, 0, 0, 16],
+
+        formatter: function (params: any) {
+          return fomatFloat(params.value, 2)
+        }
+      }
+    })
+  }
+
   options['series'] = [
     {
+      show:false,
       name: '当前价',
       type: 'line',
       data: prices.value,
       smooth: true,
       symbol: 'none',
-      gridIndex: 3,
+      gridIndex: 0,
       lineStyle: {
         opacity: 1,
         color: '#FF3232',
-        width: 0.5
+        width: 0
       },
       markPoint: {
         label: {
-          color: '#ffffff',
+          color: '#cccccc',
           fontSize: 10,
           formatter: function ({ value }: any) {
             return fomatFloat(value, 2)
@@ -474,38 +503,109 @@ const initChart = () => {
           opacity: 1,
           type: 'dashed'
         },
-        data: [
-          {
-            yAxis: close.value,
-            lineStyle: {
-              color: '#2b2f39'
-            },
-            label: {
-              position: 'end',
-              color: '#999999',
-              fontWeight: 'bold',
-              fontSize: 10,
-              formatter: function () {
-                return '0.00%'
-              }
-            }
-          },
-          {
-            yAxis: close.value,
-            lineStyle: {
-              color: '#2b2f39'
-            },
-            label: {
-              fontSize: 10,
-              fontWeight: 'bold',
-              color: '#999999',
-              position: 'start',
-              formatter: function (params: any) {
-                return Number(params.value).toFixed(2)
-              }
-            }
-          }
-        ]
+        data: markLineData
+      },
+      emphasis: {
+        focus: 'none',
+        scale: false,
+        disabled: 'none',
+        lineStyle: {
+          width: 0
+        }
+      }
+    },
+    //1
+    {
+      //1
+      name: '当前价1',
+      type: 'line',
+      data: prices1.value,
+      datasetIndex:50,
+
+      symbol: 'none',
+      gridIndex: 0,
+      lineStyle: {
+        opacity: 1,
+        color: '#2b2f39',
+        width: 1
+      },
+
+    },
+    //2
+    {
+      //2
+      name: '当前价2',
+      type: 'line',
+      data: prices2.value,
+      symbol: 'none',
+      gridIndex: 0,
+      lineStyle: {
+        opacity: 1,
+        color: '#2b2f39',
+        width: 1
+      },
+    },
+    //3
+    {
+      //3
+      name: '当前价2',
+      type: 'line',
+      data: prices3.value,
+      symbol: 'none',
+      gridIndex: 0,
+      lineStyle: {
+        opacity: 1,
+        color: '#2b2f39',
+        width: 1
+      },
+    },
+    //4
+    {
+      
+      name: '当前价',
+      type: 'line',
+      data: prices4.value,
+
+      symbol: 'none',
+      gridIndex: 0,
+      lineStyle: {
+        opacity: 1,
+        color: '#2b2f39',
+        width: 1
+      },
+     
+    },
+    //5
+    {
+     
+      name: '当前价',
+      type: 'line',
+      data: prices5.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 0,
+      lineStyle: {
+        opacity: 1,
+        color: '#2b2f39',
+        width: 1
+      },
+
+    },
+    //平均价1
+    {
+      name: '平均价',
+      type: 'line',
+      data: avgPrices1.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 0,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      z: 5,
+      lineStyle: {
+        opacity: 0.8,
+        color: '#F09A37',
+        width: 1
       },
       emphasis: {
         focus: 'none',
@@ -516,24 +616,113 @@ const initChart = () => {
         }
       }
     },
+    //平均价2
     {
+      name: '平均价',
       type: 'line',
-      data: ratios.value,
+      data: avgPrices2.value,
       smooth: true,
       symbol: 'none',
-      gridIndex: 1,
-      xAxisIndex: 1,
-      yAxisIndex: 1,
+      gridIndex: 0,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      z: 5,
       lineStyle: {
-        width: 0
+        opacity: 0.8,
+        color: '#F09A37',
+        width: 1
+      },
+      emphasis: {
+        focus: 'none',
+        scale: false,
+        disabled: 'none',
+        lineStyle: {
+          width: 1
+        }
       }
     },
+    //平均价3
+    {
+      name: '平均价',
+      type: 'line',
+      data: avgPrices3.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 0,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      z: 5,
+      lineStyle: {
+        opacity: 0.8,
+        color: '#F09A37',
+        width: 1
+      },
+      emphasis: {
+        focus: 'none',
+        scale: false,
+        disabled: 'none',
+        lineStyle: {
+          width: 1
+        }
+      }
+    },
+    //平均价4
+    {
+      name: '平均价',
+      type: 'line',
+      data: avgPrices4.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 0,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      z: 5,
+      lineStyle: {
+        opacity: 0.8,
+        color: '#F09A37',
+        width: 1
+      },
+      emphasis: {
+        focus: 'none',
+        scale: false,
+        disabled: 'none',
+        lineStyle: {
+          width: 1
+        }
+      }
+    },
+    //平均价5
+    {
+      name: '平均价',
+      type: 'line',
+      data: avgPrices5.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 0,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      z: 5,
+      lineStyle: {
+        opacity: 0.8,
+        color: '#F09A37',
+        width: 1
+      },
+      emphasis: {
+        focus: 'none',
+        scale: false,
+        disabled: 'none',
+        lineStyle: {
+          width: 1
+        }
+      }
+    },
+    //量图
     {
       name: '成交量',
       type: 'bar',
-      gridIndex: 2,
-      xAxisIndex: 2,
-      yAxisIndex: 2,
+      gridIndex: 1,
+      xAxisIndex: 1,
+      yAxisIndex: 1,
       data: volumes.value,
       barWidth: '50%',
       itemStyle: {
@@ -546,36 +735,8 @@ const initChart = () => {
         }
       }
     },
-    {
-      //坐标系
-      type: 'bar',
-      gridIndex: 3,
-      xAxisIndex: 3,
-      yAxisIndex: 3
-    },
-    {
-      gridIndex: 0,
-      // 设置涟漪特效动画
-      type: 'effectScatter',
-      // 有三种: cartesian2d(二维的直角坐标系) polar(极坐标系) geo(地理坐标系) ,此需求使用cartesian2d
-      coordinateSystem: 'cartesian2d',
-      // 单个闪烁点 ↓
-      data: pricesEffectScatter, //2d坐标系--[x轴, y轴, 标记大小]
-      // 何时显示特效:'render'-绘制完成后显示特效 'emphasis'-高亮（hover）的时候显示特效
-      showEffectOn: 'render',
-      // 涟漪特效配置
-      rippleEffect: {
-        // 波纹的绘制方式,可选'stroke'和'fill'
-        brushType: 'stroke'
-      },
-      // hoverAnimation: true,
-      itemStyle: {
-        color: '#F9293E',
-        shadowBlur: 5,
-        shadowColor: '#F9293E'
-      },
-      zlevel: 9
-    }
+   
+    
   ]
   nextTick(() => {
     showCharts.value = true
@@ -588,25 +749,46 @@ const resizeTheChart = () => {
   }
 }
 
+async function loadNewData(){
+  console.log('定时器')
+  const params = {code:stockCode}
+  const data:any = await postAPI('/sdata/kplStockTrend5Min',params)
+  initChart(data)
+}
+
 onBeforeMount(() => {
-  initChart()
+  if(stockCode == null){
+    return
+  }
+  console.log(line15,line30)
+  loadNewData()
+  // if(isCurrentTimeInRange()){
+   
+  // }
+  // intervalId.value = setInterval(() => {
+  //   loadNewData()
+  // }, 5 * 1000)
+  
   window.addEventListener('resize', resizeTheChart, { passive: true })
 })
 
 onBeforeUnmount(() => {
+  if(intervalId.value){
+    clearInterval(intervalId.value)
+  }
   window.removeEventListener('resize', resizeTheChart)
 })
 </script>  
   <style scoped>
 .stock-chart {
-  width: 100vw;
-  height: 100vh;
-  background-color: #141923;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
 }
 .stock-chart-box {
   position: relative;
   width: 100%;
-  height: 6rem;
+  height: 100%;
   z-index: 9;
 }
 .fix-date {
@@ -631,136 +813,3 @@ onBeforeUnmount(() => {
 }
 </style>
       
-
-
-
-
-  
-<script setup lang="ts" name="FiveDayMineChart">
-import { init, dispose, Chart, KLineData } from 'klinecharts'
-// import Layout from "./Layout.vue";
-import { onMounted, onUnmounted } from 'vue'
-import { postAPI } from '@/service'
-  
-const{stockCode,line15,line30,classID} = defineProps<{stockCode:string,
-    line15:string,
-    line30:string,
-    classID:string }>()
-  
-const stockdata:KLineData[] = []
-let chart:Chart 
-  
-onMounted(async()=> { 
-     
-  chart = init(classID) as Chart
-  chart.setLocale('zh-CN')
-  chart.setTimezone('Asia/Shanghai')
-  chart.createOverlay({
-    name:'simpleTag',
-    extendData:line15,
-    points:[{
-      value:parseFloat(line15)
-    }]
-  })
-  // const value1:number = 22.45
-  // console.log(type(value1))
-  
-  chart.createOverlay({
-    name:'simpleTag',
-    extendData:line30,
-    points:[{
-      value:parseFloat(line30)
-    }]
-  })
-
-  chart.setStyles({ candle: { type: 'area' }})
-  chart.setBarSpace(1)
-
-  //不允许滑动
-  // chart.setScrollEnabled(false)
-  
-  //设置技术指标
-  chart.createIndicator('MA', false, { id: 'candle_pane' })
-  chart.createIndicator('VOL', false, { id: 'fefwewf' })
-  
-  const data = await loadData() as unknown as KLineData[]
-  stockdata.unshift(...data)
-  chart.applyNewData(stockdata)
-  
-  // chart.setLoadDataCallback(async(params: LoadDataParams)=>{
-  //   if(params.type == 'forward'){
-  //     console.log('向前更新')
-  //     let data = await loadData(currentIndex) as unknown as KLineData[]
-  //     stockdata.unshift(...data)
-  //     chart.applyNewData(stockdata, true)
-  //   }else if(params.type == 'init'){
-  //     console.log('初始化更新')
-  //   }else{
-  //     console.log('实时更新')
-  //     let data = await loadData(currentIndex) as unknown as KLineData[]
-  //     stockdata.unshift(...data)
-  //     // params.callback(stockdata)
-  //     // chart.applyNewData(stockdata, true)
-  //   }
-  
-  // })
-   
-  
-})
-  
-async function loadData(){
-  
-  const params = {code:stockCode}
-  const res = await postAPI('/sdata/getStockTrend5Min',params)
-  return res
-  
-}
-  
-onUnmounted(()=>{
-  dispose('chart-type-k-line')
-})
-  
-  
-</script>
-  
-  
-  <style>
-  .k-line-chart-container {
-    display: flex;
-    flex-direction: column;
-    margin: 15px;
-    width: 100vw;
-    height: 112vw;
-    padding: 30px;
-    padding: 0px 20px 0px 0px;
-    border-width: 1;
-    border-color: rebeccapurple;
-  }
-  
-  
-  .k-line-chart {
-    display: flex;
-    flex: 1;
-  }
-  .k-line-chart-menu-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    font-size: 12px;
-    color: #606060;
-  }
-  .k-line-chart-menu-container button {
-    cursor: pointer;
-    background-color: #1677ff;
-    border-radius: 2px;
-    margin-right: 8px;
-    height: 24px;
-    line-height: 26px;
-    padding: 0 6px;
-    font-size: 12px;
-    color: #fff;
-    border: none;
-    outline: none;
-  }
-  </style>
-  

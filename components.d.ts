@@ -7,7 +7,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    ChartType: typeof import('./src/components/ChartType.vue')['default']
     DayLineChart: typeof import('./src/components/DayLineChart.vue')['default']
     ElCol: typeof import('element-plus/es')['ElCol']
     ElContainer: typeof import('element-plus/es')['ElContainer']

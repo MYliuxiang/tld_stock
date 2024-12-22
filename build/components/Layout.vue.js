@@ -22,11 +22,8 @@ function __VLS_template() {
     let __VLS_styleScopedClasses;
     let __VLS_resolvedLocalAndGlobalComponents;
     __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({ ...{ class: ("k-line-chart-container") }, });
-    __VLS_elementAsFunction(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({ ...{ class: ("k-line-chart-title") }, });
-    (__VLS_ctx.title);
     var __VLS_0 = {};
     __VLS_styleScopedClasses['k-line-chart-container'];
-    __VLS_styleScopedClasses['k-line-chart-title'];
     var __VLS_slots;
     var __VLS_inheritedAttrs;
     const __VLS_refs = {};
