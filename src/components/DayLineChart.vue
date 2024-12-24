@@ -3,7 +3,8 @@
     
     <div class="stock-chart-box" @touchstart="start($event)" @touchend="end">
       <!-- K线图 -->
-      <v-chart ref="vchart" v-if="showCharts" :option="options" :update-options="{ notMerge: true }" @datazoom="onDataZoom"/>
+      <!-- v-if="showCharts" -->
+      <v-chart ref="vchart"  :option="options" :update-options="{ notMerge: true }" @datazoom="onDataZoom"/>
     </div>
   </div>
 </template>
@@ -35,7 +36,7 @@ let dea = ref<number[]>([])
 let macd = ref<any[]>([])
 // 控制图表缩放和数据滚动
 let isOffset = ref<boolean>(false)
-let startValue = 60
+let startValue = 50
 let endValue = 100
 // 当前数据长度，K线和牛熊先知的数据长度保持一致
 let currentDateLength = ref<number>(0)
@@ -223,9 +224,9 @@ function initChart(data:any) {
  
   // 年K只显示全部图表
   // （dataZoom显示的视图范围，数据多则从50% - 100%，数据少则从0% - 100%）
-  startValue = 60
+  startValue = 30
   if (xs.length <= 50) {
-    startValue = 60
+    startValue = 30
   }
   for (let i = 0; i < xs.length; i++) {
     
@@ -973,9 +974,10 @@ function handleNewData(newData:any){
 
       calculateMACD()
    
-    }else{
+    }
+  }else{
     // 添加
-    // 更新
+    if(vchart.value){
       showVolumes.value.push ({
         value: total_amount,
         itemStyle: {
@@ -983,7 +985,6 @@ function handleNewData(newData:any){
           borderColor: isRed ? '#B9291E' : '#2B6619'
         }
       })
-
       yDatas.value.push(
         {
           value: [open_px, last_px, low_px, high_px],
@@ -997,7 +998,6 @@ function handleNewData(newData:any){
       )
       xDates.value.push(day)
       currentDateLength.value =xDates.value.length
-
       calculateMA()
       //5
       options.series[2] = {
@@ -1118,7 +1118,6 @@ function handleNewData(newData:any){
         moveHandleSize: 0,
         filterMode: 'filter'
       }
-
     }
   }
 
@@ -1138,6 +1137,7 @@ function handleNewData(newData:any){
       }
     }
   }
+  vchart.value.setOption(options)
 }
 
 async function loadData(index:number){
@@ -1159,6 +1159,10 @@ onBeforeMount(async () => {
   }
   const data = await loadData(0)
   initChart(data)
+
+  if(stockData){
+    handleNewData(stockData)
+  }
 })
 
 onUnmounted(()=>{

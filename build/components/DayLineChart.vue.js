@@ -929,9 +929,10 @@ function handleNewData(newData) {
             };
             calculateMACD();
         }
-        else {
-            // 添加
-            // 更新
+    }
+    else {
+        // 添加
+        if (vchart.value) {
             showVolumes.value.push({
                 value: total_amount,
                 itemStyle: {
@@ -1087,6 +1088,7 @@ function handleNewData(newData) {
             }
         }
     };
+    vchart.value.setOption(options);
 }
 async function loadData(index) {
     const params = { code: stockCode, index: index };
@@ -1102,6 +1104,9 @@ onBeforeMount(async () => {
     }
     const data = await loadData(0);
     initChart(data);
+    if (stockData) {
+        handleNewData(stockData);
+    }
 });
 onUnmounted(() => {
     if (intervalId.value) {
@@ -1132,23 +1137,21 @@ function __VLS_template() {
     __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({ ...{ onTouchstart: (...[$event]) => {
                 __VLS_ctx.start($event);
             } }, ...{ onTouchend: (__VLS_ctx.end) }, ...{ class: ("stock-chart-box") }, });
-    if (__VLS_ctx.showCharts) {
-        const __VLS_0 = __VLS_resolvedLocalAndGlobalComponents.VChart;
-        /** @type { [typeof __VLS_components.VChart, typeof __VLS_components.vChart, ] } */
-        // @ts-ignore
-        const __VLS_1 = __VLS_asFunctionalComponent(__VLS_0, new __VLS_0({ ...{ 'onDatazoom': {} }, ref: ("vchart"), option: ((__VLS_ctx.options)), updateOptions: (({ notMerge: true })), }));
-        const __VLS_2 = __VLS_1({ ...{ 'onDatazoom': {} }, ref: ("vchart"), option: ((__VLS_ctx.options)), updateOptions: (({ notMerge: true })), }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-        // @ts-ignore navigation for `const vchart = ref()`
-        __VLS_ctx.vchart;
-        var __VLS_6 = {};
-        let __VLS_7;
-        const __VLS_8 = {
-            onDatazoom: (__VLS_ctx.onDataZoom)
-        };
-        let __VLS_3;
-        let __VLS_4;
-        var __VLS_5;
-    }
+    const __VLS_0 = __VLS_resolvedLocalAndGlobalComponents.VChart;
+    /** @type { [typeof __VLS_components.VChart, typeof __VLS_components.vChart, ] } */
+    // @ts-ignore
+    const __VLS_1 = __VLS_asFunctionalComponent(__VLS_0, new __VLS_0({ ...{ 'onDatazoom': {} }, ref: ("vchart"), option: ((__VLS_ctx.options)), updateOptions: (({ notMerge: true })), }));
+    const __VLS_2 = __VLS_1({ ...{ 'onDatazoom': {} }, ref: ("vchart"), option: ((__VLS_ctx.options)), updateOptions: (({ notMerge: true })), }, ...__VLS_functionalComponentArgsRest(__VLS_1));
+    // @ts-ignore navigation for `const vchart = ref()`
+    __VLS_ctx.vchart;
+    var __VLS_6 = {};
+    let __VLS_7;
+    const __VLS_8 = {
+        onDatazoom: (__VLS_ctx.onDataZoom)
+    };
+    let __VLS_3;
+    let __VLS_4;
+    var __VLS_5;
     __VLS_styleScopedClasses['stock-chart'];
     __VLS_styleScopedClasses['stock-chart-box'];
     var __VLS_slots;
@@ -1171,7 +1174,6 @@ const __VLS_self = (await import('vue')).defineComponent({
         return {
             VChart: VChart,
             vchart: vchart,
-            showCharts: showCharts,
             options: options,
             start: start,
             end: end,

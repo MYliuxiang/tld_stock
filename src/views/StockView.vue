@@ -81,6 +81,7 @@ import { TabsPaneContext } from 'element-plus'
 import { postAPI } from '@/service'
 import { grayColor, greenColor, redColor } from '@/color'
 import { handFixed, handNumber } from '@/tools'
+import { isCurrentTimeInRange } from '@/utils/timetool'
 
 const intervalId = ref()
 const code = getQueryString('code') as string
@@ -136,12 +137,12 @@ onBeforeMount(async () => {
   }
   loadNewData()
 
-  // if(isCurrentTimeInRange()){
-   
-  // }
-  intervalId.value = setInterval(() => {
-    loadNewData()
-  }, 5 * 1000)
+  if(isCurrentTimeInRange()){
+    intervalId.value = setInterval(() => {
+      loadNewData()
+    }, 5 * 1000)
+  }
+  
 
 })
 
@@ -243,6 +244,14 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
     font-weight: 600;
 }
 
+.stock-tabs .el-tabs__item.is-active{
+  color: #EA392C;
+}
+
+.stock-tabs .el-tabs__item:hover{
+  color: #EA392C;
+}
+
 .stock-tabs .el-tabs__item{
     padding: 0px;
     margin-right: 0px;
@@ -260,7 +269,7 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
     margin-right: 0px !important;
     margin-left: 0px !important;
     padding: 0 !important;
-    height: 90px;
+    height: 80px;
 
 }
 
@@ -274,7 +283,7 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 }
 
 .content{
-  height: calc(100vh - 130px);
+  height: calc(100vh - 120px);
 }
 
 .grad{

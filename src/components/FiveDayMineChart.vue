@@ -2,8 +2,8 @@
   <div class="stock-chart">
     <div class="stock-chart-box">
       <!-- 五日分时图 -->
-      <v-chart ref="vchart" v-if="showCharts" :option="options" :update-options="{ notMerge: true }" />
-
+      <!-- v-if="showCharts" -->
+      <v-chart ref="vchart"  :option="options" :update-options="{ notMerge: true }" />
       <div class="fix-date">
         <div v-for="item in xDates" :key="item">{{ item.slice(5, 10) }}</div>
       </div>
@@ -15,6 +15,7 @@ import { ref, reactive, nextTick, onBeforeMount, onBeforeUnmount } from 'vue'
 import 'echarts'
 import VChart from 'vue-echarts'
 import { postAPI } from '@/service'
+import { fiveTimes, isCurrentTimeInRange } from '@/utils'
 
 
 const intervalId = ref()
@@ -54,18 +55,14 @@ let limitDown = ref<number>(0)
 let pctChangeUp = ref<number>(0)
 // 最低跌幅
 let pctChangeDown = ref<number>(0)
-
 // 控制图表展示
 let showCharts = ref<boolean>(false)
-
 // 交易日期数据
 let xDates = ref<string[]>([])
 // 交易时间数据
-let xTimes: string[] = []
-
+let xTimes: string[] = fiveTimes
 // 当前时间现价的闪烁点
 // let pricesEffectScatter = [] as any[]
-
 // 图表配置项
 let options = reactive({
   animation: false,
@@ -137,9 +134,7 @@ function fomatFloat(src: any, pos = 2) {
 
 const initChart = (data:any) => {
   
-  console.log(data)
   let list:[any] = data['List']
-
   close.value = data['List'][1]['preclose_px']
   prices.value =[]
   avgPrices.value =[]
@@ -154,7 +149,7 @@ const initChart = (data:any) => {
     high = hprice > high ? hprice:high
     low = low < lprice ? low:lprice
     item['trend'].forEach((obj: any) => {
-      xTimes.push(obj[0])
+      // xTimes.push(obj[0])
       prices.value.push(obj[1])
       if(index == 0){
         prices1.value.push(obj[1]) 
@@ -221,6 +216,7 @@ const initChart = (data:any) => {
       volumes.value.push(obj[3])
     })
     index++
+    console.log(xTimes)
 
   })
 
@@ -288,6 +284,7 @@ const initChart = (data:any) => {
       type: 'category',
       // max: 240,
       axisLabel: {
+        show:false,
         color: '#bcbcbc',
         fontSize: 10,
         interval: 48,
@@ -750,7 +747,6 @@ const resizeTheChart = () => {
 }
 
 async function loadNewData(){
-  console.log('定时器')
   const params = {code:stockCode}
   const data:any = await postAPI('/sdata/kplStockTrend5Min',params)
   initChart(data)
@@ -760,14 +756,13 @@ onBeforeMount(() => {
   if(stockCode == null){
     return
   }
-  console.log(line15,line30)
   loadNewData()
-  // if(isCurrentTimeInRange()){
-   
-  // }
-  // intervalId.value = setInterval(() => {
-  //   loadNewData()
-  // }, 5 * 1000)
+  if(isCurrentTimeInRange()){
+    intervalId.value = setInterval(() => {
+      loadNewData()
+    }, 15 * 1000 )
+  }
+  
   
   window.addEventListener('resize', resizeTheChart, { passive: true })
 })
@@ -795,7 +790,7 @@ onBeforeUnmount(() => {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 1%;
   padding-left: 0.32rem;
   padding-right: 0.32rem;
   box-sizing: border-box;
@@ -805,8 +800,8 @@ onBeforeUnmount(() => {
   justify-content: flex-start;
 }
 .fix-date > div {
-  color: #b5b5b6;
-  font-size: 0.24rem;
+  color: #cccccc;
+  font-size: 10px;
   flex: 0 1 20%;
   text-align: center;
   line-height: 1;

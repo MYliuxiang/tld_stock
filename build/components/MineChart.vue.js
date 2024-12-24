@@ -2,6 +2,7 @@ import { ref, reactive, nextTick, onBeforeMount, onUnmounted } from 'vue';
 import 'echarts';
 import VChart from 'vue-echarts';
 import { postAPI } from '@/service';
+import { isCurrentTimeInRange, mineTimes } from '@/utils';
 const { defineProps, defineSlots, defineEmits, defineExpose, defineModel, defineOptions, withDefaults, } = await import('vue');
 const intervalId = ref();
 const __VLS_props = defineProps();
@@ -31,7 +32,7 @@ let pctChangeDown = ref(0);
 // 控制图表展示
 let showCharts = ref(false);
 // 交易时间数据
-let xTimes = ref([]);
+let xTimes = ref(mineTimes);
 let options = reactive({
     animation: false,
     grid: [
@@ -105,11 +106,11 @@ const initChart = (data) => {
     preclose.value = data['preclose_px'];
     let trends = data['trend'];
     prices.value = [];
-    xTimes.value = [];
     volumes.value = [];
+    avgPrices.value = [];
     trends.forEach((item) => {
         prices.value.push(item[1]);
-        xTimes.value.push(item[0]);
+        // xTimes.value.push(item[0])
         avgPrices.value.push(item[2]);
         volumes.value.push(item[3]);
         // pcts.value.push(item[9])
@@ -467,13 +468,12 @@ onBeforeMount(async () => {
     if (stockCode == null) {
         return;
     }
-    console.log(line15, line30);
     loadNewData();
-    // if(isCurrentTimeInRange()){
-    // }
-    intervalId.value = setInterval(() => {
-        loadNewData();
-    }, 5 * 1000);
+    if (isCurrentTimeInRange()) {
+        intervalId.value = setInterval(() => {
+            loadNewData();
+        }, 3 * 1000);
+    }
     window.addEventListener('resize', resizeTheChart, { passive: true });
 });
 onUnmounted(() => {

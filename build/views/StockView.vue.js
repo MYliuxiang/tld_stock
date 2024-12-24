@@ -2,6 +2,7 @@ import { ref, onBeforeMount, onUnmounted, reactive } from 'vue';
 import { postAPI } from '@/service';
 import { grayColor, greenColor, redColor } from '@/color';
 import { handFixed, handNumber } from '@/tools';
+import { isCurrentTimeInRange } from '@/utils/timetool';
 const { defineProps, defineSlots, defineEmits, defineExpose, defineModel, defineOptions, withDefaults, } = await import('vue');
 const intervalId = ref();
 const code = getQueryString('code');
@@ -50,11 +51,11 @@ onBeforeMount(async () => {
         return;
     }
     loadNewData();
-    // if(isCurrentTimeInRange()){
-    // }
-    intervalId.value = setInterval(() => {
-        loadNewData();
-    }, 5 * 1000);
+    if (isCurrentTimeInRange()) {
+        intervalId.value = setInterval(() => {
+            loadNewData();
+        }, 5 * 1000);
+    }
 });
 onUnmounted(() => {
     if (intervalId.value) {

@@ -19,6 +19,7 @@ import { ref, reactive, nextTick, onBeforeMount, onUnmounted } from 'vue'
 import 'echarts'
 import VChart from 'vue-echarts'
 import { postAPI } from '@/service'
+import { isCurrentTimeInRange, mineTimes } from '@/utils'
 
 const intervalId = ref()
 
@@ -52,7 +53,7 @@ let pctChangeDown = ref<number>(0)
 let showCharts = ref<boolean>(false)
 
 // 交易时间数据
-let xTimes = ref<string[]>([])
+let xTimes = ref<string[]>(mineTimes)
 let options = reactive({
   animation: false,
   grid: [
@@ -128,17 +129,18 @@ const initChart = (data:any) => {
   preclose.value = data['preclose_px']
   let trends = data['trend']
   prices.value = []
-  xTimes.value = []
   volumes.value = []
+  avgPrices.value = []
 
   trends.forEach((item:any) => {
     prices.value.push(item[1])
-    xTimes.value.push(item[0])
+    // xTimes.value.push(item[0])
     avgPrices.value.push(item[2])
     volumes.value.push(item[3])
     // pcts.value.push(item[9])
     // ratios.value.push(item[10])
   })
+
 
   // 现价图图表四角的数据
   // 最大差值：昨日收盘价 - 股票信息中的最高价 对比 昨日收盘价 - 股票信息中的最低价 取绝对值 ，两者哪个相差比较大就用哪个差值
@@ -494,8 +496,6 @@ const resizeTheChart = () => {
   }
 }
 
-
-
 async function loadNewData(){
   const params = {code:stockCode}
   const data:any = await postAPI('/sdata/kplTrendIncremental',params)
@@ -507,14 +507,13 @@ onBeforeMount(async () => {
   if(stockCode == null){
     return
   }
-  console.log(line15,line30)
   loadNewData()
-  // if(isCurrentTimeInRange()){
-   
-  // }
-  intervalId.value = setInterval(() => {
-    loadNewData()
-  }, 5 * 1000)
+  if(isCurrentTimeInRange()){
+    intervalId.value = setInterval(() => {
+      loadNewData()
+    }, 3 * 1000)
+  }
+ 
   
   window.addEventListener('resize', resizeTheChart, { passive: true })
 

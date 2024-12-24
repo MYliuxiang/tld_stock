@@ -2,6 +2,7 @@ import { ref, reactive, nextTick, onBeforeMount, onBeforeUnmount } from 'vue';
 import 'echarts';
 import VChart from 'vue-echarts';
 import { postAPI } from '@/service';
+import { fiveTimes, isCurrentTimeInRange } from '@/utils';
 const { defineProps, defineSlots, defineEmits, defineExpose, defineModel, defineOptions, withDefaults, } = await import('vue');
 const intervalId = ref();
 const __VLS_props = defineProps();
@@ -42,7 +43,7 @@ let showCharts = ref(false);
 // 交易日期数据
 let xDates = ref([]);
 // 交易时间数据
-let xTimes = [];
+let xTimes = fiveTimes;
 // 当前时间现价的闪烁点
 // let pricesEffectScatter = [] as any[]
 // 图表配置项
@@ -114,7 +115,6 @@ function fomatFloat(src, pos = 2) {
     return Math.round(src * Math.pow(10, pos)) / Math.pow(10, pos);
 }
 const initChart = (data) => {
-    console.log(data);
     let list = data['List'];
     close.value = data['List'][1]['preclose_px'];
     prices.value = [];
@@ -130,7 +130,7 @@ const initChart = (data) => {
         high = hprice > high ? hprice : high;
         low = low < lprice ? low : lprice;
         item['trend'].forEach((obj) => {
-            xTimes.push(obj[0]);
+            // xTimes.push(obj[0])
             prices.value.push(obj[1]);
             if (index == 0) {
                 prices1.value.push(obj[1]);
@@ -196,6 +196,7 @@ const initChart = (data) => {
             volumes.value.push(obj[3]);
         });
         index++;
+        console.log(xTimes);
     });
     limitUp.value = high;
     limitDown.value = low;
@@ -258,6 +259,7 @@ const initChart = (data) => {
             type: 'category',
             // max: 240,
             axisLabel: {
+                show: false,
                 color: '#bcbcbc',
                 fontSize: 10,
                 interval: 48,
@@ -700,7 +702,6 @@ const resizeTheChart = () => {
     }
 };
 async function loadNewData() {
-    console.log('定时器');
     const params = { code: stockCode };
     const data = await postAPI('/sdata/kplStockTrend5Min', params);
     initChart(data);
@@ -709,13 +710,12 @@ onBeforeMount(() => {
     if (stockCode == null) {
         return;
     }
-    console.log(line15, line30);
     loadNewData();
-    // if(isCurrentTimeInRange()){
-    // }
-    // intervalId.value = setInterval(() => {
-    //   loadNewData()
-    // }, 5 * 1000)
+    if (isCurrentTimeInRange()) {
+        intervalId.value = setInterval(() => {
+            loadNewData();
+        }, 15 * 1000);
+    }
     window.addEventListener('resize', resizeTheChart, { passive: true });
 });
 onBeforeUnmount(() => {
@@ -747,17 +747,15 @@ function __VLS_template() {
     let __VLS_resolvedLocalAndGlobalComponents;
     __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({ ...{ class: ("stock-chart") }, });
     __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({ ...{ class: ("stock-chart-box") }, });
-    if (__VLS_ctx.showCharts) {
-        const __VLS_0 = __VLS_resolvedLocalAndGlobalComponents.VChart;
-        /** @type { [typeof __VLS_components.VChart, typeof __VLS_components.vChart, ] } */
-        // @ts-ignore
-        const __VLS_1 = __VLS_asFunctionalComponent(__VLS_0, new __VLS_0({ ref: ("vchart"), option: ((__VLS_ctx.options)), updateOptions: (({ notMerge: true })), }));
-        const __VLS_2 = __VLS_1({ ref: ("vchart"), option: ((__VLS_ctx.options)), updateOptions: (({ notMerge: true })), }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-        // @ts-ignore navigation for `const vchart = ref()`
-        __VLS_ctx.vchart;
-        var __VLS_6 = {};
-        var __VLS_5;
-    }
+    const __VLS_0 = __VLS_resolvedLocalAndGlobalComponents.VChart;
+    /** @type { [typeof __VLS_components.VChart, typeof __VLS_components.vChart, ] } */
+    // @ts-ignore
+    const __VLS_1 = __VLS_asFunctionalComponent(__VLS_0, new __VLS_0({ ref: ("vchart"), option: ((__VLS_ctx.options)), updateOptions: (({ notMerge: true })), }));
+    const __VLS_2 = __VLS_1({ ref: ("vchart"), option: ((__VLS_ctx.options)), updateOptions: (({ notMerge: true })), }, ...__VLS_functionalComponentArgsRest(__VLS_1));
+    // @ts-ignore navigation for `const vchart = ref()`
+    __VLS_ctx.vchart;
+    var __VLS_6 = {};
+    var __VLS_5;
     __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({ ...{ class: ("fix-date") }, });
     for (const [item] of __VLS_getVForSourceType((__VLS_ctx.xDates))) {
         __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({ key: ((item)), });
@@ -786,7 +784,6 @@ const __VLS_self = (await import('vue')).defineComponent({
         return {
             VChart: VChart,
             vchart: vchart,
-            showCharts: showCharts,
             xDates: xDates,
             options: options,
         };
