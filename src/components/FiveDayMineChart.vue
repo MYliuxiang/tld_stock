@@ -139,6 +139,20 @@ const initChart = (data:any) => {
   prices.value =[]
   avgPrices.value =[]
   volumes.value =[]
+
+  prices1.value =[]
+  prices2.value =[]
+  prices3.value =[]
+  prices4.value =[]
+  prices5.value =[]
+
+  avgPrices1.value =[]
+  avgPrices2.value =[]
+  avgPrices3.value =[]
+  avgPrices4.value =[]
+  avgPrices5.value =[]
+
+
   let high = 0
   let low = 10000
   let index = 0
@@ -216,7 +230,6 @@ const initChart = (data:any) => {
       volumes.value.push(obj[3])
     })
     index++
-    console.log(xTimes)
 
   })
 
@@ -517,8 +530,6 @@ const initChart = (data:any) => {
       name: '当前价1',
       type: 'line',
       data: prices1.value,
-      datasetIndex:50,
-
       symbol: 'none',
       gridIndex: 0,
       lineStyle: {

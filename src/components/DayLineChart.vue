@@ -9,7 +9,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, reactive, onBeforeMount, nextTick, defineProps, onUnmounted, watch } from 'vue'
+import { ref, reactive, onBeforeMount, nextTick, defineProps, onUnmounted ,watch} from 'vue'
 import 'echarts'
 import VChart from 'vue-echarts'
 import { postAPI } from '@/service'
@@ -21,6 +21,12 @@ const intervalId = ref()
 
 // vchart组件的引用
 const vchart: any = ref(null)
+
+let haveMore: boolean = true
+let index: number = 0
+let isloading: boolean = false
+
+
 
 // 控制图表展示
 let showCharts = ref<boolean>(false)
@@ -36,7 +42,7 @@ let dea = ref<number[]>([])
 let macd = ref<any[]>([])
 // 控制图表缩放和数据滚动
 let isOffset = ref<boolean>(false)
-let startValue = 50
+let startValue = 60
 let endValue = 100
 // 当前数据长度，K线和牛熊先知的数据长度保持一致
 let currentDateLength = ref<number>(0)
@@ -48,20 +54,39 @@ let yDatas = ref<any[]>([])
 let showVolumes = ref<any[]>([])
 // 图表配置项
 let options = reactive({
+  top:0,
+  legend: {
+    symbol:'none',
+    data: ['MA5', 'MA10', 'MA20', 'MA30'],
+    itemStyle:{
+      borderWidth:0,
+      color:'red',
+      borderType:'solid',
+      opacity:0,
+     
+    },  
+    lineStyle:{
+      type:'solid',
+    },
+    textStyle:{
+      color:'#323232',
+      fontSize:10
+    }
+  },
   animation: false, //禁止动画效果
   grid: [
     {
       show: true, //显示坐标系的边框
       id: 'gd1',
-      top: '1%',
+      top: '3%',
       left: '0.1%',
       right: '0.1%',
-      bottom: '40%'
+      bottom: '38%'
     },
     {
       show: true, //显示坐标系的边框
       id: 'gd2',
-      top: '61%',
+      top: '63%',
       left: '0.1%',
       right: '0.1%',
       bottom: '20%'
@@ -112,7 +137,7 @@ let options = reactive({
   },
   axisPointer: { link: [{ xAxisIndex: 'all' }] },
   // 调色盘
-  color: ['#B9291E', '#009900'],
+  color: ['#AFAFAF', '#9B37F6','#F3B846','#94C9B2'],
   xAxis: [] as any[],
   yAxis: [] as any[],
   dataZoom: [] as any[],
@@ -224,9 +249,10 @@ function initChart(data:any) {
  
   // 年K只显示全部图表
   // （dataZoom显示的视图范围，数据多则从50% - 100%，数据少则从0% - 100%）
-  startValue = 30
+  startValue = 60
   if (xs.length <= 50) {
-    startValue = 30
+    startValue = 0
+    endValue = xs.length / 100 * 50
   }
   for (let i = 0; i < xs.length; i++) {
     
@@ -467,18 +493,23 @@ function initChart(data:any) {
       start: startValue,
       end: endValue,
       filterMode: 'filter',
+      minSpan:5,
+      maxSpan:60,
       moveOnMouseMove: !isOffset.value
     },
     {
       show: false,
       xAxisIndex: [0, 1, 2, 3],
       type: 'slider',
-      bottom: '0%',
+      // bottom: '0%',
+      minspan:5,
+      maxSpan:60,
+
       start: startValue,
       end: endValue,
-      height: 0,
-      handleSize: 0,
-      moveHandleSize: 0,
+      // height: 0,
+      // handleSize: 0,
+      // moveHandleSize: 0,
       filterMode: 'filter'
     }
   ]
@@ -622,6 +653,7 @@ function initChart(data:any) {
   calculateMA()
   options.series.push(
     {
+      name:'MA5',
       type: 'line',
       data: ma5.value,
       smooth: true,
@@ -632,19 +664,20 @@ function initChart(data:any) {
       z: 5,
       lineStyle: {
         opacity: 1,
-        color: '#AFAFAF',
+        // color: '#AFAFAF',
         width: 1
       },
-      emphasis: {
-        focus: 'none',
-        scale: false,
-        disabled: 'none',
-        lineStyle: {
-          width: 1
-        }
-      }
+      // emphasis: {
+      //   focus: 'none',
+      //   scale: false,
+      //   disabled: 'none',
+      //   lineStyle: {
+      //     width: 1
+      //   }
+      // }
     },
     {
+      name:'MA10',
       type: 'line',
       data: ma10.value,
       smooth: true,
@@ -655,19 +688,20 @@ function initChart(data:any) {
       z: 5,
       lineStyle: {
         opacity: 1,
-        color: '#9B37F6',
+        // color: '#9B37F6',
         width: 1
       },
-      emphasis: {
-        focus: 'none',
-        scale: false,
-        disabled: 'none',
-        lineStyle: {
-          width: 1
-        }
-      }
+      // emphasis: {
+      //   focus: 'none',
+      //   scale: false,
+      //   disabled: 'none',
+      //   lineStyle: {
+      //     width: 1
+      //   }
+      // }
     },
     {
+      name:'MA20',
       type: 'line',
       data: ma20.value,
       smooth: true,
@@ -678,19 +712,20 @@ function initChart(data:any) {
       z: 5,
       lineStyle: {
         opacity: 1,
-        color: '#F3B846',
+        // color: '#F3B846',
         width: 1
       },
-      emphasis: {
-        focus: 'none',
-        scale: false,
-        disabled: 'none',
-        lineStyle: {
-          width: 1
-        }
-      }
+      // emphasis: {
+      //   focus: 'none',
+      //   scale: false,
+      //   disabled: 'none',
+      //   lineStyle: {
+      //     width: 1
+      //   }
+      // }
     },
     {
+      name:'MA30',
       type: 'line',
       data: ma30.value,
       smooth: true,
@@ -701,17 +736,17 @@ function initChart(data:any) {
       z: 5,
       lineStyle: {
         opacity: 1,
-        color: '#94C9B2',
+        // color: '#94C9B2',
         width: 1
       },
-      emphasis: {
-        focus: 'none',
-        scale: false,
-        disabled: 'none',
-        lineStyle: {
-          width: 1
-        }
-      }
+      // emphasis: {
+      //   focus: 'none',
+      //   scale: false,
+      //   disabled: 'none',
+      //   lineStyle: {
+      //     width: 1
+      //   }
+      // }
     }
   )
   calculateMACD()
@@ -811,17 +846,622 @@ function end() {
 
 }
 
+function moreChart(data:any) {
+
+  const xs = data['x']
+  const ys = data['y']
+  const bals = data['bal']
+
+  if(xs.length < 240){
+    haveMore = false
+  }
+
+  let mshowVolumes = []
+  let myDatas = []
+
+  // const tunrnovers = data['turnover']
+  for (let i = 0; i < xs.length; i++) {
+  
+    if (i == xs.length - 1) {
+      if (ys[i][0] == 0 || ys[i][1] == 0 || ys[i][2] == 0 || ys[i][3] == 0) {
+        continue
+      }
+    }
+    let forYData = []
+    forYData.push(ys[i][0], ys[i][1], ys[i][3], ys[i][2])
+    /* 如果功能指标类型不等于2，成交量push-- */
+    // if (state.features !== 2) {
+    mshowVolumes[i] = {
+      value: bals[i],
+      itemStyle: {
+        color: ys[i][1] >= ys[i][0] ? '#B9291E' : '#2B6619',
+        borderColor: ys[i][1] >= ys[i][0] ? '#B9291E' : '#2B6619'
+      }
+    }
+    // }
+    myDatas[i] = {
+      value: forYData,
+      itemStyle: {
+        color: ys[i][1] >= ys[i][0] ? '#ffffff' : '#2B6619',
+        color0: ys[i][1] >= ys[i][0] ? '#B9291E' : '#2B6619',
+        borderColor: ys[i][1] >= ys[i][0] ? '#B9291E' : '#2B6619',
+        borderColor0: ys[i][1] >= ys[i][0] ? '#B9291E' : '#2B6619'
+      }
+    }
+  }
+
+  xDates.value.unshift(...xs)
+  showVolumes.value.unshift(...mshowVolumes)
+  yDatas.value.unshift(...myDatas)
+
+  let startIndex = currentDateLength.value / 100 * startValue + xs.length
+  let endIndex = currentDateLength.value / 100 * endValue  + xs.length
+  // 当前数据长度
+  currentDateLength.value = xDates.value.length
+
+  calculateMA()
+  calculateMACD()
+
+  startValue =  startIndex / (currentDateLength.value / 100 ) 
+  endValue = endIndex/(currentDateLength.value / 100)   
+
+
+  options.dataZoom[0] ={
+    show: true,
+    type: 'inside',
+    xAxisIndex: [0, 1, 2, 3],
+    start: startValue,
+    end: endValue,
+    minSpan:5,
+    maxSpan:60,
+    filterMode: 'filter',
+    moveOnMouseMove: !isOffset.value
+  }
+
+  options.dataZoom[1] = {
+    show: false,
+    xAxisIndex: [0, 1, 2, 3],
+    type: 'slider',
+    bottom: '0%',
+    start: startValue,
+    end: endValue,
+    minSpan:5,
+    maxSpan:60,
+    height: 0,
+    handleSize: 0,
+    moveHandleSize: 0,
+    filterMode: 'filter'
+  }
+
+  options['xAxis'] = [
+    {
+      type: 'category',
+      name: '',
+      min: 0,
+      max: currentDateLength.value,
+      interval: currentDateLength.value,
+      gridIndex: 0,
+      data: xDates.value,
+      axisTick: {
+        show: false
+      },
+      axisLabel: {
+        show: false,
+        fontSize: 10,
+        color: '#CCCCCC'
+      },
+      axisLine: {
+        show: false,
+        lineStyle: {
+          color: '#CCCCCC'
+        }
+      },
+      axisPointer: {
+        fontSize: 10,
+        label: {
+          show: false
+        }
+      },
+      splitLine: {
+        show: false
+      }
+    },
+    {
+      // 主图
+      type: 'category',
+      name: '',
+      min: 0,
+      max: currentDateLength.value,
+      interval: currentDateLength.value,
+      gridIndex: 1,
+      data: xDates.value,
+      axisTick: {
+        show: false
+      },
+      axisLabel: {
+        show: false,
+        fontSize: 10,
+        color: '#CCCCCC'
+      },
+      axisLine: {
+        show: false,
+        lineStyle: {
+          color: '#CCCCCC'
+        }
+      },
+      axisPointer: {
+        fontSize: 10,
+        label: {
+          show: false
+        }
+      },
+      splitLine: {
+        show: false
+      }
+    },
+    {
+      type: 'category',
+      name: '',
+      gridIndex: 2,
+      min: 0,
+      max: currentDateLength.value,
+      // interval: currentDateLength.value,
+      data: xDates.value,
+      axisTick: {
+        show: false
+      },
+      axisLabel: {
+        show: true,
+        fontSize: 10,
+        color: '#bcbcbc',
+        formatter: function (value: any) {
+          return value
+        }
+      },
+      axisLine: {
+        show: true,
+        lineStyle: {
+          color: '#CCCCCC'
+        }
+      },
+      axisPointer: {
+        label: {
+          show: true,
+          fontSize: 10
+        }
+      },
+      splitLine: {
+        show: false
+      }
+    },
+  ]
+
+  options['yAxis'] = [
+    {
+      gridIndex: 0,
+      show: true,
+      scale: true,
+      z: 5,
+      splitNumber: 3,
+      // interval: yDatas.value[0]?.value[0] || yDatas.value[0][0],
+      axisLabel: {
+        fontSize: 10,
+        color: '#CCCCCC',
+        show:true,
+        inside:true,
+        margin:5
+      },
+      axisLine: {
+        show: true,
+        lineStyle: {
+          color: '#CCCCCC'
+        }
+      },
+      axisPointer: {
+        snap: true,
+        label: {
+          show: true,
+          fontSize: 10
+        }
+      },
+      splitLine: {
+        show: true
+      }
+    },
+    {
+      show: true,
+      gridIndex: 1,
+      scale: true,
+      // boundaryGap: ['10%', '10%'],
+      z: 5,
+      // min:0,
+      splitNumber: 1,
+      // axisLabel: {
+      //   fontSize: 10,
+      //   color: '#CCCCCC',
+      //   show:true
+      // },
+      // axisLine: {
+      //   show: false,
+      //   lineStyle: {
+      //     color: '#CCCCCC'
+      //   }
+      // },
+      // axisPointer: {
+      //   label: {
+      //     show: true,
+      //     fontSize: 10
+      //   }
+      // },
+      // splitLine: {
+      //   show: true
+      // }
+    },
+    {
+      show: true,
+      gridIndex: 2,
+      scale: true,
+      z: 4,
+      splitNumber: 0,
+      axisLabel: {
+        fontSize: 10,
+        color: '#CCCCCC',
+        show:false
+      },
+      axisLine: {
+        show: false,
+        lineStyle: {
+          color: '#CCCCCC'
+        }
+      },
+      axisPointer: {
+        snap: true,
+        label: {
+          show: true,
+          fontSize: 10,
+          formatter: function (params: any) {
+            return fomatFloat(params.value)
+          }
+        }
+      },
+      splitLine: {
+        show: false
+      }
+    },
+    
+  ]
+
+  let markLineData:Array<any> = []
+  if(Number(line15) > 0){
+    markLineData.push({
+      yAxis: line15,
+      lineStyle: {
+        color: '#F09A37',
+        width:1
+      },
+      label: {
+        position: 'end',
+        color: '#F09A37',
+        fontSize: 10,
+        // padding:[0, 0, 0, 5],
+
+        formatter: function (params: any) {
+          return fomatFloat(params.value, 2)
+        }
+      }
+    })
+  }
+
+  if(Number(line30) > 0){
+    markLineData.push({
+      yAxis: line30,
+      lineStyle: {
+        color: '#F09A37',
+        width:1
+
+      },
+      label: {
+        fontSize: 10,
+        color: '#F09A37',
+        position: 'end',
+        // padding:[0, 0, 0, 5],
+
+        formatter: function (params: any) {
+          return fomatFloat(params.value, 2)
+        }
+      }
+    })
+  }
+
+  const last_px = yDatas.value[currentDateLength.value - 1].value[0]
+  markLineData.push({
+    yAxis: last_px,
+    lineStyle: {
+      width:1,
+      color: '#E7D9C4',
+      type: 'dashed'
+    },
+    label: {
+      position: 'start',
+      color: '#F09A37',
+      fontSize: 10,
+      formatter: function (params: any) {
+        return fomatFloat(params.value, 2)
+      }
+    }
+  })
+
+  options['series'] = [
+    {
+      gridIndex: 0,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      type: 'candlestick',
+      data: yDatas,
+      barWidth: '60%',
+      large: true, //大数据优化
+      largeThreshold: 200, //优化阈值
+      smooth: true,
+      markPoint: {
+        show:true,
+        label: {
+          color: '#cccccc',
+          fontSize: 10,
+          // formatter: function (param: any) {
+          //   return param != null ? Math.round(param.value) + '' : ''
+          // }
+        },
+        symbol: 'roundRect',
+        symbolSize: [30,10],
+        silent:true,
+        data: [
+          {
+            name: 'highest value',
+            type: 'max',
+            valueDim: 'highest',
+            // 设置markpoint图标的位置
+            symbolOffset: [0, -6]
+          },
+          {
+            name: 'lowest value',
+            type: 'min',
+            valueDim: 'lowest',
+            // 设置markpoint图标的位置
+            symbolOffset: [0, 6]
+          }
+        ]
+      },
+      itemStyle: {
+        color: '#ffffff',
+        color0: '#ffffff',
+        borderColor: '#ffffff',
+        borderColor0: '#ffffff'
+      }, 
+      markLine: {
+        silent: true,
+        symbol: 'none',
+        label: {
+          show: true,
+          distance: [-30, 0]
+        },
+        lineStyle: {
+          color: '#F09A37',
+          opacity: 1,
+          type: 'inherit'
+        },
+        data: markLineData
+      },
+    
+    },
+    
+    {
+      gridIndex: 2,
+      xAxisIndex: 2,
+      yAxisIndex: 2,
+      type: 'bar',
+      data: showVolumes.value,
+      barWidth: '60%',
+      smooth: true,
+      large: true, //大数据优化
+      largeThreshold: 200 //优化阈值
+    }
+  ]
+
+  calculateMA()
+  options.series.push(
+    {
+      name:'MA5',
+      type: 'line',
+      data: ma5.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 0,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      z: 5,
+      lineStyle: {
+        opacity: 1,
+        // color: '#AFAFAF',
+        width: 1
+      },
+      // emphasis: {
+      //   focus: 'none',
+      //   scale: false,
+      //   disabled: 'none',
+      //   lineStyle: {
+      //     width: 1
+      //   }
+      // }
+    },
+    {
+      name:'MA10',
+      type: 'line',
+      data: ma10.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 0,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      z: 5,
+      lineStyle: {
+        opacity: 1,
+        // color: '#9B37F6',
+        width: 1
+      },
+      // emphasis: {
+      //   focus: 'none',
+      //   scale: false,
+      //   disabled: 'none',
+      //   lineStyle: {
+      //     width: 1
+      //   }
+      // }
+    },
+    {
+      name:'MA20',
+      type: 'line',
+      data: ma20.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 0,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      z: 5,
+      lineStyle: {
+        opacity: 1,
+        // color: '#F3B846',
+        width: 1
+      },
+      // emphasis: {
+      //   focus: 'none',
+      //   scale: false,
+      //   disabled: 'none',
+      //   lineStyle: {
+      //     width: 1
+      //   }
+      // }
+    },
+    {
+      name:'MA30',
+      type: 'line',
+      data: ma30.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 0,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      z: 5,
+      lineStyle: {
+        opacity: 1,
+        // color: '#94C9B2',
+        width: 1
+      },
+      // emphasis: {
+      //   focus: 'none',
+      //   scale: false,
+      //   disabled: 'none',
+      //   lineStyle: {
+      //     width: 1
+      //   }
+      // }
+    }
+  )
+  calculateMACD()
+  options.series.push(
+    {
+      gridIndex: 1,
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      type: 'bar',
+      data: macd.value,
+      barWidth: '60%',
+      smooth: true,
+      large: true, //大数据优化
+      largeThreshold: 200 //优化阈值
+    },
+    {
+      type: 'line',
+      data: dif.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 1,
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      z: 5,
+      lineStyle: {
+        opacity: 1,
+        color: '#A1A1A1',
+        width: 1
+      },
+      emphasis: {
+        focus: 'none',
+        scale: false,
+        disabled: 'none',
+        lineStyle: {
+          width: 1
+        }
+      }
+    },
+    {
+      type: 'line',
+      data: dea.value,
+      smooth: true,
+      symbol: 'none',
+      gridIndex: 1,
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      z: 5,
+      lineStyle: {
+        opacity: 1,
+        color: '#18179B',
+        width: 1
+      },
+      emphasis: {
+        focus: 'none',
+        scale: false,
+        disabled: 'none',
+        lineStyle: {
+          width: 1
+        }
+      }
+    }
+  )
+  vchart.value.setOption(options)
+
+
+
+
+}
+
 function onDataZoom(event:any){
   if(event.batch){
-    startValue = event.batch[0].start
+    if (event.batch[0].start < 2 ) {
+      // 当滑块靠近数据边缘时加载更多数据
+      if(haveMore && isloading == false){
+        loadMoreData()
+      }
+    }
+    // startValue = event.batch[0].start > 50 ? 50:event.batch[0].start
+    startValue = event.batch[0].start 
+
     endValue = event.batch[0].end
+    
+
   }else{
-    startValue = event.start
+   
+    if (event.start < 2) {
+      // 当滑块靠近数据边缘时加载更多数据
+      if(haveMore && isloading == false){
+        loadMoreData()
+      }
+    }
+    startValue = event.start  > 50 ? 50:event.batch[0].start
     endValue = event.end
   }
 }
 
 function handleNewData(newData:any){
+  
   const day:string = newData['day']
   const open_px = newData['real']['open_px']
   let total_amount = newData['real']['total_amount']
@@ -832,7 +1472,6 @@ function handleNewData(newData:any){
  
   if(xDates.value[currentDateLength.value -1] == day){
     // 更新
-    console.log('更新')
     if(vchart.value){
       showVolumes.value[currentDateLength.value -1] = {
         value: total_amount,
@@ -854,6 +1493,7 @@ function handleNewData(newData:any){
       calculateMA()
       //5
       options.series[2] = {
+        name:'MA5',
         type: 'line',
         data: ma5.value,
         smooth: true,
@@ -864,20 +1504,21 @@ function handleNewData(newData:any){
         z: 5,
         lineStyle: {
           opacity: 1,
-          color: '#AFAFAF',
+          // color: '#AFAFAF',
           width: 1
         },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
+        // emphasis: {
+        //   focus: 'none',
+        //   scale: false,
+        //   disabled: 'none',
+        //   lineStyle: {
+        //     width: 1
+        //   }
+        // }
       }
       // 10
       options.series[3] = {
+        name:'MA10',
         type: 'line',
         data: ma10.value,
         smooth: true,
@@ -888,20 +1529,22 @@ function handleNewData(newData:any){
         z: 5,
         lineStyle: {
           opacity: 1,
-          color: '#9B37F6',
+          // color: '#9B37F6',
           width: 1
         },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
+        // emphasis: {
+        //   focus: 'none',
+        //   scale: false,
+        //   disabled: 'none',
+        //   lineStyle: {
+        //     width: 1
+        //   }
+        // }
       }
       // 20
       options.series[4] = {
+        name:'MA20',
+
         type: 'line',
         data: ma20.value,
         smooth: true,
@@ -912,20 +1555,22 @@ function handleNewData(newData:any){
         z: 5,
         lineStyle: {
           opacity: 1,
-          color: '#F3B846',
+          // color: '#F3B846',
           width: 1
         },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
+        // emphasis: {
+        //   focus: 'none',
+        //   scale: false,
+        //   disabled: 'none',
+        //   lineStyle: {
+        //     width: 1
+        //   }
+        // }
       }
       // 30
       options.series[5] = {
+        name:'MA30',
+
         type: 'line',
         data: ma30.value,
         smooth: true,
@@ -936,17 +1581,17 @@ function handleNewData(newData:any){
         z: 5,
         lineStyle: {
           opacity: 1,
-          color: '#94C9B2',
+          // color: '#94C9B2',
           width: 1
         },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
+        // emphasis: {
+        //   focus: 'none',
+        //   scale: false,
+        //   disabled: 'none',
+        //   lineStyle: {
+        //     width: 1
+        //   }
+        // }
       }
 
       options.dataZoom[0] ={
@@ -955,6 +1600,8 @@ function handleNewData(newData:any){
         xAxisIndex: [0, 1, 2, 3],
         start: startValue,
         end: endValue,
+        minSpan:5,
+        maxSpan:60,
         filterMode: 'filter',
         moveOnMouseMove: !isOffset.value
       }
@@ -966,6 +1613,8 @@ function handleNewData(newData:any){
         bottom: '0%',
         start: startValue,
         end: endValue,
+        minSpan:5,
+        maxSpan:60,
         height: 0,
         handleSize: 0,
         moveHandleSize: 0,
@@ -1001,6 +1650,7 @@ function handleNewData(newData:any){
       calculateMA()
       //5
       options.series[2] = {
+        name:'MA5',
         type: 'line',
         data: ma5.value,
         smooth: true,
@@ -1011,20 +1661,21 @@ function handleNewData(newData:any){
         z: 5,
         lineStyle: {
           opacity: 1,
-          color: '#AFAFAF',
+          // color: '#AFAFAF',
           width: 1
         },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
+        // emphasis: {
+        //   focus: 'none',
+        //   scale: false,
+        //   disabled: 'none',
+        //   lineStyle: {
+        //     width: 1
+        //   }
+        // }
       }
       // 10
       options.series[3] = {
+        name:'MA10',
         type: 'line',
         data: ma10.value,
         smooth: true,
@@ -1035,20 +1686,21 @@ function handleNewData(newData:any){
         z: 5,
         lineStyle: {
           opacity: 1,
-          color: '#9B37F6',
+          // color: '#9B37F6',
           width: 1
         },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
+        // emphasis: {
+        //   focus: 'none',
+        //   scale: false,
+        //   disabled: 'none',
+        //   lineStyle: {
+        //     width: 1
+        //   }
+        // }
       }
       // 20
       options.series[4] = {
+        name:'MA20',
         type: 'line',
         data: ma20.value,
         smooth: true,
@@ -1059,20 +1711,21 @@ function handleNewData(newData:any){
         z: 5,
         lineStyle: {
           opacity: 1,
-          color: '#F3B846',
+          // color: '#F3B846',
           width: 1
         },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
+        // emphasis: {
+        //   focus: 'none',
+        //   scale: false,
+        //   disabled: 'none',
+        //   lineStyle: {
+        //     width: 1
+        //   }
+        // }
       }
       // 30
       options.series[5] = {
+        name:'MA30',
         type: 'line',
         data: ma30.value,
         smooth: true,
@@ -1083,17 +1736,17 @@ function handleNewData(newData:any){
         z: 5,
         lineStyle: {
           opacity: 1,
-          color: '#94C9B2',
+          // color: '#94C9B2',
           width: 1
         },
-        emphasis: {
-          focus: 'none',
-          scale: false,
-          disabled: 'none',
-          lineStyle: {
-            width: 1
-          }
-        }
+        // emphasis: {
+        //   focus: 'none',
+        //   scale: false,
+        //   disabled: 'none',
+        //   lineStyle: {
+        //     width: 1
+        //   }
+        // }
       }
       calculateMACD()
       options.dataZoom[0] ={
@@ -1102,6 +1755,8 @@ function handleNewData(newData:any){
         xAxisIndex: [0, 1, 2, 3],
         start: startValue,
         end: endValue,
+        minSpan:5,
+        maxSpan:60,
         filterMode: 'filter',
         moveOnMouseMove: !isOffset.value
       }
@@ -1113,6 +1768,8 @@ function handleNewData(newData:any){
         bottom: '0%',
         start: startValue,
         end: endValue,
+        minSpan:5,
+        maxSpan:60,
         height: 0,
         handleSize: 0,
         moveHandleSize: 0,
@@ -1148,8 +1805,20 @@ async function loadData(index:number){
 
 }
 
+async function loadMoreData(){
+  isloading = true
+
+  index++
+  const data = await loadData(index * 240)
+  moreChart(data)
+  isloading = false
+
+}
+
 watch(()=>stockData,(newValue)=>{
-  handleNewData(newValue)
+  if(!isloading){
+    handleNewData(newValue)
+  }
 },{deep:true})
 
 
