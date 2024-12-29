@@ -9,6 +9,8 @@ const intervalId = ref();
 // const childData = toRef(newData)
 // vchart组件的引用
 const vchart = ref(null);
+const maxValue = 60;
+const minValue = 20;
 let haveMore = true;
 let index = 0;
 let isloading = false;
@@ -41,7 +43,7 @@ let options = reactive({
     top: 0,
     legend: {
         symbol: 'none',
-        data: ['MA5', 'MA10', 'MA20', 'MA30'],
+        // data: ['日K','MA5', 'MA10', 'MA20', 'MA30'],
         itemStyle: {
             borderWidth: 0,
             color: 'red',
@@ -472,8 +474,8 @@ function initChart(data) {
             start: startValue,
             end: endValue,
             filterMode: 'filter',
-            minSpan: 5,
-            maxSpan: 60,
+            minSpan: minValue / (currentDateLength.value / 100),
+            maxSpan: maxValue / (currentDateLength.value / 100),
             moveOnMouseMove: !isOffset.value
         },
         {
@@ -481,8 +483,8 @@ function initChart(data) {
             xAxisIndex: [0, 1, 2, 3],
             type: 'slider',
             // bottom: '0%',
-            minspan: 5,
-            maxSpan: 60,
+            minspan: minValue / (currentDateLength.value / 100),
+            maxSpan: maxValue / (currentDateLength.value / 100),
             start: startValue,
             end: endValue,
             // height: 0,
@@ -545,6 +547,7 @@ function initChart(data) {
             }
         }
     });
+    calculateMA();
     options['series'] = [
         {
             gridIndex: 0,
@@ -616,102 +619,104 @@ function initChart(data) {
             smooth: true,
             large: true, //大数据优化
             largeThreshold: 200 //优化阈值
+        },
+        {
+            name: 'MA5',
+            type: 'line',
+            data: ma5.value,
+            smooth: true,
+            symbol: 'none',
+            gridIndex: 0,
+            xAxisIndex: 0,
+            yAxisIndex: 0,
+            z: 5,
+            lineStyle: {
+                opacity: 1,
+                // color: '#AFAFAF',
+                width: 1
+            },
+            // emphasis: {
+            //   focus: 'none',
+            //   scale: false,
+            //   disabled: 'none',
+            //   lineStyle: {
+            //     width: 1
+            //   }
+            // }
+        },
+        {
+            name: 'MA10',
+            type: 'line',
+            data: ma10.value,
+            smooth: true,
+            symbol: 'none',
+            gridIndex: 0,
+            xAxisIndex: 0,
+            yAxisIndex: 0,
+            z: 5,
+            lineStyle: {
+                opacity: 1,
+                // color: '#9B37F6',
+                width: 1
+            },
+            // emphasis: {
+            //   focus: 'none',
+            //   scale: false,
+            //   disabled: 'none',
+            //   lineStyle: {
+            //     width: 1
+            //   }
+            // }
+        },
+        {
+            name: 'MA20',
+            type: 'line',
+            data: ma20.value,
+            smooth: true,
+            symbol: 'none',
+            gridIndex: 0,
+            xAxisIndex: 0,
+            yAxisIndex: 0,
+            z: 5,
+            lineStyle: {
+                opacity: 1,
+                // color: '#F3B846',
+                width: 1
+            },
+            // emphasis: {
+            //   focus: 'none',
+            //   scale: false,
+            //   disabled: 'none',
+            //   lineStyle: {
+            //     width: 1
+            //   }
+            // }
+        },
+        {
+            name: 'MA30',
+            type: 'line',
+            data: ma30.value,
+            smooth: true,
+            symbol: 'none',
+            gridIndex: 0,
+            xAxisIndex: 0,
+            yAxisIndex: 0,
+            z: 5,
+            lineStyle: {
+                opacity: 1,
+                // color: '#94C9B2',
+                width: 1
+            },
+            // emphasis: {
+            //   focus: 'none',
+            //   scale: false,
+            //   disabled: 'none',
+            //   lineStyle: {
+            //     width: 1
+            //   }
+            // }
         }
     ];
-    calculateMA();
-    options.series.push({
-        name: 'MA5',
-        type: 'line',
-        data: ma5.value,
-        smooth: true,
-        symbol: 'none',
-        gridIndex: 0,
-        xAxisIndex: 0,
-        yAxisIndex: 0,
-        z: 5,
-        lineStyle: {
-            opacity: 1,
-            // color: '#AFAFAF',
-            width: 1
-        },
-        // emphasis: {
-        //   focus: 'none',
-        //   scale: false,
-        //   disabled: 'none',
-        //   lineStyle: {
-        //     width: 1
-        //   }
-        // }
-    }, {
-        name: 'MA10',
-        type: 'line',
-        data: ma10.value,
-        smooth: true,
-        symbol: 'none',
-        gridIndex: 0,
-        xAxisIndex: 0,
-        yAxisIndex: 0,
-        z: 5,
-        lineStyle: {
-            opacity: 1,
-            // color: '#9B37F6',
-            width: 1
-        },
-        // emphasis: {
-        //   focus: 'none',
-        //   scale: false,
-        //   disabled: 'none',
-        //   lineStyle: {
-        //     width: 1
-        //   }
-        // }
-    }, {
-        name: 'MA20',
-        type: 'line',
-        data: ma20.value,
-        smooth: true,
-        symbol: 'none',
-        gridIndex: 0,
-        xAxisIndex: 0,
-        yAxisIndex: 0,
-        z: 5,
-        lineStyle: {
-            opacity: 1,
-            // color: '#F3B846',
-            width: 1
-        },
-        // emphasis: {
-        //   focus: 'none',
-        //   scale: false,
-        //   disabled: 'none',
-        //   lineStyle: {
-        //     width: 1
-        //   }
-        // }
-    }, {
-        name: 'MA30',
-        type: 'line',
-        data: ma30.value,
-        smooth: true,
-        symbol: 'none',
-        gridIndex: 0,
-        xAxisIndex: 0,
-        yAxisIndex: 0,
-        z: 5,
-        lineStyle: {
-            opacity: 1,
-            // color: '#94C9B2',
-            width: 1
-        },
-        // emphasis: {
-        //   focus: 'none',
-        //   scale: false,
-        //   disabled: 'none',
-        //   lineStyle: {
-        //     width: 1
-        //   }
-        // }
-    });
     calculateMACD();
     options.series.push({
         gridIndex: 1,
@@ -856,8 +861,8 @@ function moreChart(data) {
         xAxisIndex: [0, 1, 2, 3],
         start: startValue,
         end: endValue,
-        minSpan: 5,
-        maxSpan: 60,
+        minSpan: minValue / (currentDateLength.value / 100),
+        maxSpan: maxValue / (currentDateLength.value / 100),
         filterMode: 'filter',
         moveOnMouseMove: !isOffset.value
     };
@@ -868,8 +873,8 @@ function moreChart(data) {
         bottom: '0%',
         start: startValue,
         end: endValue,
-        minSpan: 5,
-        maxSpan: 60,
+        minSpan: minValue / (currentDateLength.value / 100),
+        maxSpan: maxValue / (currentDateLength.value / 100),
         height: 0,
         handleSize: 0,
         moveHandleSize: 0,

@@ -131,8 +131,8 @@ async function loadNewData() {
 }
 const activeName = ref('first');
 const handleClick = (tab, event) => {
-    console.log(tab);
-    console.log(event);
+    // console.log(tab)
+    // console.log(event)
 }; /* PartiallyEnd: #3632/scriptSetup.vue */
 const __VLS_fnComponent = (await import('vue')).defineComponent({});
 ;
@@ -179,8 +179,8 @@ function __VLS_template() {
     const __VLS_25 = __VLS_resolvedLocalAndGlobalComponents.ElRow;
     /** @type { [typeof __VLS_components.ElRow, typeof __VLS_components.elRow, typeof __VLS_components.ElRow, typeof __VLS_components.elRow, ] } */
     // @ts-ignore
-    const __VLS_26 = __VLS_asFunctionalComponent(__VLS_25, new __VLS_25({ gutter: ((12)), justify: ("right"), }));
-    const __VLS_27 = __VLS_26({ gutter: ((12)), justify: ("right"), }, ...__VLS_functionalComponentArgsRest(__VLS_26));
+    const __VLS_26 = __VLS_asFunctionalComponent(__VLS_25, new __VLS_25({ gutter: ((12)), }));
+    const __VLS_27 = __VLS_26({ gutter: ((12)), }, ...__VLS_functionalComponentArgsRest(__VLS_26));
     __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({ ...{ class: ("contenr price") }, ...{ style: (({ color: __VLS_ctx.zdColor })) }, });
     (__VLS_ctx.last_px);
     __VLS_nonNullable(__VLS_30.slots).default;
@@ -313,8 +313,8 @@ function __VLS_template() {
     var __VLS_18;
     __VLS_nonNullable(__VLS_12.slots).default;
     var __VLS_12;
-    const __VLS_109 = __VLS_resolvedLocalAndGlobalComponents.el_main;
-    /** @type { [typeof __VLS_components.El_main, typeof __VLS_components.el_main, typeof __VLS_components.El_main, typeof __VLS_components.el_main, ] } */
+    const __VLS_109 = __VLS_resolvedLocalAndGlobalComponents.ElMain;
+    /** @type { [typeof __VLS_components.ElMain, typeof __VLS_components.elMain, typeof __VLS_components.ElMain, typeof __VLS_components.elMain, ] } */
     // @ts-ignore
     const __VLS_110 = __VLS_asFunctionalComponent(__VLS_109, new __VLS_109({}));
     const __VLS_111 = __VLS_110({}, ...__VLS_functionalComponentArgsRest(__VLS_110));
@@ -332,8 +332,8 @@ function __VLS_template() {
     const __VLS_123 = __VLS_resolvedLocalAndGlobalComponents.ElTabPane;
     /** @type { [typeof __VLS_components.ElTabPane, typeof __VLS_components.elTabPane, typeof __VLS_components.ElTabPane, typeof __VLS_components.elTabPane, ] } */
     // @ts-ignore
-    const __VLS_124 = __VLS_asFunctionalComponent(__VLS_123, new __VLS_123({ ...{ class: ("content") }, label: ("分时"), name: ("first"), lazy: ("false"), }));
-    const __VLS_125 = __VLS_124({ ...{ class: ("content") }, label: ("分时"), name: ("first"), lazy: ("false"), }, ...__VLS_functionalComponentArgsRest(__VLS_124));
+    const __VLS_124 = __VLS_asFunctionalComponent(__VLS_123, new __VLS_123({ ...{ class: ("content") }, label: ("分时"), name: ("first"), lazy: (true), }));
+    const __VLS_125 = __VLS_124({ ...{ class: ("content") }, label: ("分时"), name: ("first"), lazy: (true), }, ...__VLS_functionalComponentArgsRest(__VLS_124));
     const __VLS_129 = __VLS_resolvedLocalAndGlobalComponents.MineChart;
     /** @type { [typeof __VLS_components.MineChart, ] } */
     // @ts-ignore
@@ -344,8 +344,8 @@ function __VLS_template() {
     const __VLS_135 = __VLS_resolvedLocalAndGlobalComponents.ElTabPane;
     /** @type { [typeof __VLS_components.ElTabPane, typeof __VLS_components.elTabPane, typeof __VLS_components.ElTabPane, typeof __VLS_components.elTabPane, ] } */
     // @ts-ignore
-    const __VLS_136 = __VLS_asFunctionalComponent(__VLS_135, new __VLS_135({ ...{ class: ("content") }, label: ("五日"), name: ("second"), lazy: ("false"), }));
-    const __VLS_137 = __VLS_136({ ...{ class: ("content") }, label: ("五日"), name: ("second"), lazy: ("false"), }, ...__VLS_functionalComponentArgsRest(__VLS_136));
+    const __VLS_136 = __VLS_asFunctionalComponent(__VLS_135, new __VLS_135({ ...{ class: ("content") }, label: ("五日"), name: ("second"), lazy: (true), }));
+    const __VLS_137 = __VLS_136({ ...{ class: ("content") }, label: ("五日"), name: ("second"), lazy: (true), }, ...__VLS_functionalComponentArgsRest(__VLS_136));
     const __VLS_141 = __VLS_resolvedLocalAndGlobalComponents.FiveDayMineChart;
     /** @type { [typeof __VLS_components.FiveDayMineChart, ] } */
     // @ts-ignore
@@ -356,8 +356,8 @@ function __VLS_template() {
     const __VLS_147 = __VLS_resolvedLocalAndGlobalComponents.ElTabPane;
     /** @type { [typeof __VLS_components.ElTabPane, typeof __VLS_components.elTabPane, typeof __VLS_components.ElTabPane, typeof __VLS_components.elTabPane, ] } */
     // @ts-ignore
-    const __VLS_148 = __VLS_asFunctionalComponent(__VLS_147, new __VLS_147({ ...{ class: ("content") }, label: ("日线"), name: ("third"), lazy: ("false"), }));
-    const __VLS_149 = __VLS_148({ ...{ class: ("content") }, label: ("日线"), name: ("third"), lazy: ("false"), }, ...__VLS_functionalComponentArgsRest(__VLS_148));
+    const __VLS_148 = __VLS_asFunctionalComponent(__VLS_147, new __VLS_147({ ...{ class: ("content") }, label: ("日线"), name: ("third"), lazy: (true), }));
+    const __VLS_149 = __VLS_148({ ...{ class: ("content") }, label: ("日线"), name: ("third"), lazy: (true), }, ...__VLS_functionalComponentArgsRest(__VLS_148));
     const __VLS_153 = __VLS_resolvedLocalAndGlobalComponents.DayLineChart;
     /** @type { [typeof __VLS_components.DayLineChart, ] } */
     // @ts-ignore

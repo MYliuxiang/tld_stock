@@ -25,7 +25,9 @@ export default [
       'vue/html-closing-bracket-newline': 'off', // 不强制换行
       'vue/singleline-html-element-content-newline': 'off', // 不强制换行
       'vue/no-export-in-script-setup':'off',
+      'no-unused-vars': 'warn',    
       'vue/multi-word-component-names':'off',
+      '@typescript-eslint/no-unused-vars':'off',
       'vue/max-attributes-per-line': [
         'error',
         {

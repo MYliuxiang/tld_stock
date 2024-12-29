@@ -22,11 +22,12 @@ const intervalId = ref()
 // vchart组件的引用
 const vchart: any = ref(null)
 
+const maxValue = 60
+const minValue = 20
+
 let haveMore: boolean = true
 let index: number = 0
 let isloading: boolean = false
-
-
 
 // 控制图表展示
 let showCharts = ref<boolean>(false)
@@ -57,7 +58,7 @@ let options = reactive({
   top:0,
   legend: {
     symbol:'none',
-    data: ['MA5', 'MA10', 'MA20', 'MA30'],
+    // data: ['日K','MA5', 'MA10', 'MA20', 'MA30'],
     itemStyle:{
       borderWidth:0,
       color:'red',
@@ -493,8 +494,8 @@ function initChart(data:any) {
       start: startValue,
       end: endValue,
       filterMode: 'filter',
-      minSpan:5,
-      maxSpan:60,
+      minSpan: minValue / (currentDateLength.value / 100 ),
+      maxSpan:maxValue / (currentDateLength.value / 100 ),
       moveOnMouseMove: !isOffset.value
     },
     {
@@ -502,8 +503,8 @@ function initChart(data:any) {
       xAxisIndex: [0, 1, 2, 3],
       type: 'slider',
       // bottom: '0%',
-      minspan:5,
-      maxSpan:60,
+      minspan:minValue / (currentDateLength.value / 100 ),
+      maxSpan:maxValue / (currentDateLength.value / 100 ),
 
       start: startValue,
       end: endValue,
@@ -573,6 +574,7 @@ function initChart(data:any) {
       }
     }
   })
+  calculateMA()
 
   options['series'] = [
     {
@@ -647,11 +649,7 @@ function initChart(data:any) {
       smooth: true,
       large: true, //大数据优化
       largeThreshold: 200 //优化阈值
-    }
-  ]
-
-  calculateMA()
-  options.series.push(
+    },
     {
       name:'MA5',
       type: 'line',
@@ -748,7 +746,9 @@ function initChart(data:any) {
       //   }
       // }
     }
-  )
+  ]
+
+ 
   calculateMACD()
   options.series.push(
     {
@@ -912,8 +912,8 @@ function moreChart(data:any) {
     xAxisIndex: [0, 1, 2, 3],
     start: startValue,
     end: endValue,
-    minSpan:5,
-    maxSpan:60,
+    minSpan:minValue / (currentDateLength.value / 100 ),
+    maxSpan:maxValue / (currentDateLength.value / 100 ),
     filterMode: 'filter',
     moveOnMouseMove: !isOffset.value
   }
@@ -925,8 +925,8 @@ function moreChart(data:any) {
     bottom: '0%',
     start: startValue,
     end: endValue,
-    minSpan:5,
-    maxSpan:60,
+    minSpan:minValue / (currentDateLength.value / 100 ),
+    maxSpan:maxValue / (currentDateLength.value / 100 ),
     height: 0,
     handleSize: 0,
     moveHandleSize: 0,
@@ -1461,7 +1461,6 @@ function onDataZoom(event:any){
 }
 
 function handleNewData(newData:any){
-  
   const day:string = newData['day']
   const open_px = newData['real']['open_px']
   let total_amount = newData['real']['total_amount']

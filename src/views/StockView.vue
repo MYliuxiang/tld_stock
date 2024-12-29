@@ -4,7 +4,7 @@
         <div class="div">
                 <el-row type="flex" justify="space-between">
                     <el-col :span="5">
-                        <el-row :gutter="12" justify="right">
+                        <el-row :gutter="12">
                             <label class="contenr price" :style="{color:zdColor}">{{ last_px }}</label>
                         </el-row>
                         <el-row :gutter="12" type="flex" justify="space-between">
@@ -58,19 +58,19 @@
             </div> 
     </el-header>
         
-    <el_main> 
+    <el-main> 
       <el-tabs v-model="activeName" class="stock-tabs" @tab-click="handleClick">
-        <el-tab-pane class="content" label="分时" name="first" lazy=false> 
+        <el-tab-pane class="content" label="分时" name="first" lazy> 
           <MineChart :stockCode="code" :line15="line15" :line30="line30" :classID='"stockview" + "1"' />
         </el-tab-pane>
-        <el-tab-pane class="content" label="五日" name="second" lazy=false>
+        <el-tab-pane class="content" label="五日" name="second" lazy>
           <FiveDayMineChart  :stockCode="code" :line15="line15" :line30="line30" :classID='"stockview" + "2"'/>
         </el-tab-pane>
-        <el-tab-pane class="content" label="日线" name="third" lazy=false>
+        <el-tab-pane class="content" label="日线" name="third" lazy>
           <DayLineChart :stockCode="code" :line15="line15" :line30="line30" :stockData="stockData.value"/>
         </el-tab-pane> 
       </el-tabs> 
-    </el_main>
+    </el-main>
    </el-container>
 </template>
 
@@ -222,8 +222,8 @@ async function loadNewData(){
 
 const activeName = ref('first')
 const handleClick = (tab: TabsPaneContext, event: Event) => {
-  console.log(tab)
-  console.log(event)
+  // console.log(tab)
+  // console.log(event)
 }
 
 </script>
@@ -254,22 +254,28 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 
 .stock-tabs .el-tabs__item{
     padding: 0px;
-    margin-right: 0px;
-    margin-left: 10px;
+    margin-right: 15px;
+    margin-left: 0px;
     margin-top: 0px;
-    width: 25px;
+    width: 30px;
     height: 40px;
 }
 
 .el-tabs__header{
-    margin: 0px;
+    margin: 0px !important;
 }
 
 .el-header{
     margin-right: 0px !important;
     margin-left: 0px !important;
     padding: 0 !important;
-    height: 80px;
+    height: 80px !important;
+
+}
+
+.el-main{
+  margin: 0px !important;
+  padding: 0 !important;
 
 }
 
