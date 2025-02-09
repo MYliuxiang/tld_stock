@@ -6,7 +6,7 @@ import { isCurrentTimeInRange, mineTimes } from '@/utils';
 const { defineProps, defineSlots, defineEmits, defineExpose, defineModel, defineOptions, withDefaults, } = await import('vue');
 const intervalId = ref();
 const __VLS_props = defineProps();
-const { stockCode, line15, line30 } = __VLS_props;
+const { stockCode, line15, line30, color } = __VLS_props;
 // vchart组件的引用
 const vchart = ref(null);
 // 昨日收盘价
@@ -295,20 +295,21 @@ const initChart = (data) => {
             }
         },
     ];
+    console.log('==', color);
     let markLineData = [];
     if (Number(line15) > 0) {
         markLineData.push({
             yAxis: line15,
             lineStyle: {
-                color: '#F09A37',
+                color: '#' + color,
                 width: 1,
                 type: 'solid'
             },
             label: {
                 position: 'end',
-                color: '#F09A37',
-                fontSize: 10,
-                // padding:[0, 0, 0, 5],
+                color: '#' + color,
+                fontSize: 12,
+                padding: [0, 0, 0, -10],
                 formatter: function (params) {
                     return fomatFloat(params.value, 2);
                 }
@@ -319,14 +320,15 @@ const initChart = (data) => {
         markLineData.push({
             yAxis: line30,
             lineStyle: {
-                color: '#F09A37',
+                color: '#' + color,
                 width: 1,
                 type: 'solid'
             },
             label: {
-                fontSize: 10,
-                color: '#F09A37',
+                fontSize: 12,
+                color: '#' + color,
                 position: 'end',
+                padding: [0, 0, 0, -10],
                 formatter: function (params) {
                     return fomatFloat(params.value, 2);
                 }

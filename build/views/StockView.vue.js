@@ -8,6 +8,7 @@ const intervalId = ref();
 const code = getQueryString('code');
 const line15 = getQueryString('line15');
 const line30 = getQueryString('line30');
+let color = getQueryString('color');
 const stockData = reactive({});
 const zdColor = ref('#323232');
 const highColor = ref('#323232');
@@ -47,6 +48,9 @@ function getQueryString(name) {
     return null;
 }
 onBeforeMount(async () => {
+    if (color == null) {
+        color = 'F09A37';
+    }
     if (code == null) {
         return;
     }
@@ -69,8 +73,9 @@ async function loadNewData() {
     stockData.value = data;
     const preclose_px = data['preclose_px'];
     last_px.value = handFixed(data['real']['last_px']);
+    console.log(data);
     px_change.value = data['real']['px_change'];
-    pe_rate.value = data['real']['pe_rate'];
+    pe_rate.value = data['real']['px_change_rate'];
     if (last_px.value > preclose_px) {
         zdColor.value = redColor;
     }
@@ -292,7 +297,7 @@ function __VLS_template() {
     // @ts-ignore
     const __VLS_98 = __VLS_asFunctionalComponent(__VLS_97, new __VLS_97({ gutter: ((8)), justify: ("space-between"), }));
     const __VLS_99 = __VLS_98({ gutter: ((8)), justify: ("space-between"), }, ...__VLS_functionalComponentArgsRest(__VLS_98));
-    __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({ ...{ class: ("grad blackFont") }, });
+    __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({ ...{ class: ("grad ") }, });
     __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({ ...{ class: ("contenr blackFont") }, });
     (__VLS_ctx.total_turnover);
     __VLS_nonNullable(__VLS_102.slots).default;
@@ -337,8 +342,8 @@ function __VLS_template() {
     const __VLS_129 = __VLS_resolvedLocalAndGlobalComponents.MineChart;
     /** @type { [typeof __VLS_components.MineChart, ] } */
     // @ts-ignore
-    const __VLS_130 = __VLS_asFunctionalComponent(__VLS_129, new __VLS_129({ stockCode: ((__VLS_ctx.code)), line15: ((__VLS_ctx.line15)), line30: ((__VLS_ctx.line30)), classID: (("stockview" + "1")), }));
-    const __VLS_131 = __VLS_130({ stockCode: ((__VLS_ctx.code)), line15: ((__VLS_ctx.line15)), line30: ((__VLS_ctx.line30)), classID: (("stockview" + "1")), }, ...__VLS_functionalComponentArgsRest(__VLS_130));
+    const __VLS_130 = __VLS_asFunctionalComponent(__VLS_129, new __VLS_129({ stockCode: ((__VLS_ctx.code)), line15: ((__VLS_ctx.line15)), line30: ((__VLS_ctx.line30)), color: ((__VLS_ctx.color)), classID: (("stockview" + "1")), }));
+    const __VLS_131 = __VLS_130({ stockCode: ((__VLS_ctx.code)), line15: ((__VLS_ctx.line15)), line30: ((__VLS_ctx.line30)), color: ((__VLS_ctx.color)), classID: (("stockview" + "1")), }, ...__VLS_functionalComponentArgsRest(__VLS_130));
     __VLS_nonNullable(__VLS_128.slots).default;
     var __VLS_128;
     const __VLS_135 = __VLS_resolvedLocalAndGlobalComponents.ElTabPane;
@@ -349,8 +354,8 @@ function __VLS_template() {
     const __VLS_141 = __VLS_resolvedLocalAndGlobalComponents.FiveDayMineChart;
     /** @type { [typeof __VLS_components.FiveDayMineChart, ] } */
     // @ts-ignore
-    const __VLS_142 = __VLS_asFunctionalComponent(__VLS_141, new __VLS_141({ stockCode: ((__VLS_ctx.code)), line15: ((__VLS_ctx.line15)), line30: ((__VLS_ctx.line30)), classID: (("stockview" + "2")), }));
-    const __VLS_143 = __VLS_142({ stockCode: ((__VLS_ctx.code)), line15: ((__VLS_ctx.line15)), line30: ((__VLS_ctx.line30)), classID: (("stockview" + "2")), }, ...__VLS_functionalComponentArgsRest(__VLS_142));
+    const __VLS_142 = __VLS_asFunctionalComponent(__VLS_141, new __VLS_141({ stockCode: ((__VLS_ctx.code)), line15: ((__VLS_ctx.line15)), line30: ((__VLS_ctx.line30)), color: ((__VLS_ctx.color)), classID: (("stockview" + "2")), }));
+    const __VLS_143 = __VLS_142({ stockCode: ((__VLS_ctx.code)), line15: ((__VLS_ctx.line15)), line30: ((__VLS_ctx.line30)), color: ((__VLS_ctx.color)), classID: (("stockview" + "2")), }, ...__VLS_functionalComponentArgsRest(__VLS_142));
     __VLS_nonNullable(__VLS_140.slots).default;
     var __VLS_140;
     const __VLS_147 = __VLS_resolvedLocalAndGlobalComponents.ElTabPane;
@@ -361,8 +366,8 @@ function __VLS_template() {
     const __VLS_153 = __VLS_resolvedLocalAndGlobalComponents.DayLineChart;
     /** @type { [typeof __VLS_components.DayLineChart, ] } */
     // @ts-ignore
-    const __VLS_154 = __VLS_asFunctionalComponent(__VLS_153, new __VLS_153({ stockCode: ((__VLS_ctx.code)), line15: ((__VLS_ctx.line15)), line30: ((__VLS_ctx.line30)), stockData: ((__VLS_ctx.stockData.value)), }));
-    const __VLS_155 = __VLS_154({ stockCode: ((__VLS_ctx.code)), line15: ((__VLS_ctx.line15)), line30: ((__VLS_ctx.line30)), stockData: ((__VLS_ctx.stockData.value)), }, ...__VLS_functionalComponentArgsRest(__VLS_154));
+    const __VLS_154 = __VLS_asFunctionalComponent(__VLS_153, new __VLS_153({ stockCode: ((__VLS_ctx.code)), line15: ((__VLS_ctx.line15)), line30: ((__VLS_ctx.line30)), color: ((__VLS_ctx.color)), stockData: ((__VLS_ctx.stockData.value)), }));
+    const __VLS_155 = __VLS_154({ stockCode: ((__VLS_ctx.code)), line15: ((__VLS_ctx.line15)), line30: ((__VLS_ctx.line30)), color: ((__VLS_ctx.color)), stockData: ((__VLS_ctx.stockData.value)), }, ...__VLS_functionalComponentArgsRest(__VLS_154));
     __VLS_nonNullable(__VLS_152.slots).default;
     var __VLS_152;
     __VLS_nonNullable(__VLS_120.slots).default;
@@ -395,7 +400,6 @@ function __VLS_template() {
     __VLS_styleScopedClasses['contenr'];
     __VLS_styleScopedClasses['blackFont'];
     __VLS_styleScopedClasses['grad'];
-    __VLS_styleScopedClasses['blackFont'];
     __VLS_styleScopedClasses['contenr'];
     __VLS_styleScopedClasses['blackFont'];
     __VLS_styleScopedClasses['grad'];
@@ -423,6 +427,7 @@ const __VLS_self = (await import('vue')).defineComponent({
             code: code,
             line15: line15,
             line30: line30,
+            color: color,
             stockData: stockData,
             zdColor: zdColor,
             highColor: highColor,

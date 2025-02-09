@@ -4,7 +4,7 @@ import VChart from 'vue-echarts';
 import { postAPI } from '@/service';
 const { defineSlots, defineEmits, defineExpose, defineModel, defineOptions, withDefaults, } = await import('vue');
 const __VLS_props = defineProps();
-const { stockCode, line15, line30, stockData, } = __VLS_props;
+const { stockCode, line15, line30, stockData, color } = __VLS_props;
 const intervalId = ref();
 // const childData = toRef(newData)
 // vchart组件的引用
@@ -498,14 +498,14 @@ function initChart(data) {
         markLineData.push({
             yAxis: line15,
             lineStyle: {
-                color: '#F09A37',
+                color: '#' + color,
                 width: 1
             },
             label: {
                 position: 'end',
-                color: '#F09A37',
-                fontSize: 10,
-                // padding:[0, 0, 0, 5],
+                color: '#' + color,
+                fontSize: 12,
+                padding: [0, 0, 0, -10],
                 formatter: function (params) {
                     return fomatFloat(params.value, 2);
                 }
@@ -516,14 +516,14 @@ function initChart(data) {
         markLineData.push({
             yAxis: line30,
             lineStyle: {
-                color: '#F09A37',
+                color: '#' + color,
                 width: 1
             },
             label: {
-                fontSize: 10,
-                color: '#F09A37',
+                fontSize: 12,
+                color: '#' + color,
                 position: 'end',
-                // padding:[0, 0, 0, 5],
+                padding: [0, 0, 0, -10],
                 formatter: function (params) {
                     return fomatFloat(params.value, 2);
                 }
@@ -1080,12 +1080,12 @@ function moreChart(data) {
         markLineData.push({
             yAxis: line15,
             lineStyle: {
-                color: '#F09A37',
+                color: '#' + color,
                 width: 1
             },
             label: {
                 position: 'end',
-                color: '#F09A37',
+                color: '#' + color,
                 fontSize: 10,
                 // padding:[0, 0, 0, 5],
                 formatter: function (params) {
@@ -1098,12 +1098,12 @@ function moreChart(data) {
         markLineData.push({
             yAxis: line30,
             lineStyle: {
-                color: '#F09A37',
+                color: '#' + color,
                 width: 1
             },
             label: {
                 fontSize: 10,
-                color: '#F09A37',
+                color: '#' + color,
                 position: 'end',
                 // padding:[0, 0, 0, 5],
                 formatter: function (params) {

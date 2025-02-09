@@ -46,7 +46,7 @@
                             <label class="contenr blackFont" >{{ vol_ratio }}</label>
                         </el-row>
                         <el-row :gutter="8" justify="space-between">
-                            <label class="grad blackFont">金额</label>
+                            <label class="grad ">金额</label>
                             <label class="contenr blackFont">{{total_turnover}}</label>
                         </el-row>
                         <el-row :gutter="8" justify="space-between">
@@ -61,13 +61,13 @@
     <el-main> 
       <el-tabs v-model="activeName" class="stock-tabs" @tab-click="handleClick">
         <el-tab-pane class="content" label="分时" name="first" lazy> 
-          <MineChart :stockCode="code" :line15="line15" :line30="line30" :classID='"stockview" + "1"' />
+          <MineChart :stockCode="code" :line15="line15" :line30="line30" :color="color" :classID='"stockview" + "1"' />
         </el-tab-pane>
         <el-tab-pane class="content" label="五日" name="second" lazy>
-          <FiveDayMineChart  :stockCode="code" :line15="line15" :line30="line30" :classID='"stockview" + "2"'/>
+          <FiveDayMineChart  :stockCode="code" :line15="line15" :line30="line30" :color="color" :classID='"stockview" + "2"'/>
         </el-tab-pane>
         <el-tab-pane class="content" label="日线" name="third" lazy>
-          <DayLineChart :stockCode="code" :line15="line15" :line30="line30" :stockData="stockData.value"/>
+          <DayLineChart :stockCode="code" :line15="line15" :line30="line30" :color="color" :stockData="stockData.value"/>
         </el-tab-pane> 
       </el-tabs> 
     </el-main>
@@ -87,6 +87,9 @@ const intervalId = ref()
 const code = getQueryString('code') as string
 const line15 = getQueryString('line15') as string
 const line30 = getQueryString('line30') as string
+
+let color = getQueryString('color') as string
+
 
 const stockData = reactive<any>({})
 
@@ -132,6 +135,10 @@ function getQueryString(name:string){
 }
 
 onBeforeMount(async () => {
+
+  if (color == null){
+    color = 'F09A37'
+  }
   if(code == null){
     return
   }
@@ -160,8 +167,9 @@ async function loadNewData(){
   stockData.value = data
   const preclose_px = data['preclose_px']
   last_px.value = handFixed(data['real']['last_px'])
+  console.log(data)
   px_change.value = data['real']['px_change']
-  pe_rate.value = data['real']['pe_rate']
+  pe_rate.value = data['real']['px_change_rate']
   if(last_px.value > preclose_px){
     zdColor.value = redColor
   }else if(last_px.value == preclose_px){
@@ -304,7 +312,7 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 }
 .price{
     font-weight: 600;
-    font-size: 18px;
+    font-size: 20px;
 }
 .blackFont{
     color: #323232;

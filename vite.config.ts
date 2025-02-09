@@ -36,13 +36,13 @@ export default defineConfig({
     open: true,
     proxy: {
       '/kpl/': {
-        target: 'http://8.138.113.191:8000',
+        target: 'http://121.37.13.67:8000',
         changeOrigin: true,
         ws: true,
         // rewrite: (path: string) => path.replace(/^\/kpl/, ''),
       },
       '/sdata/': {
-        target: 'http://8.138.113.191:8000',
+        target: 'http://121.37.13.67:8000',
         changeOrigin: true,
         ws: true,
         // rewrite: (path: string) => path.replace(/^\/sdata/, ''),
