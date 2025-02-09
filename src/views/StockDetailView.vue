@@ -73,8 +73,8 @@
             </el-tabs> 
         </div>
         <el-space  wrap >
-            <div v-for="i in 15" :key="i">
-                <el-tag text> Text button </el-tag>
+            <div v-for="(hot, index) in tags" :key="index">
+                <el-tag text> {{ hot.name }} </el-tag>
             </div>
         </el-space>
      </el-main>
@@ -89,6 +89,7 @@ import { getAPI, postAPI } from '@/service'
 import { grayColor, greenColor, redColor } from '@/color'
 import { handFixed, handNumber } from '@/tools'
 import { isCurrentTimeInRange } from '@/utils/timetool'
+import { HotTag } from '@/type'
  
 const intervalId = ref()
 const code = getQueryString('code') as string
@@ -101,6 +102,7 @@ const highColor = ref<string>('#323232')
 const lowColor = ref<string>('#323232')
 const openColor = ref<string>('#323232')
 const diffColor = ref<string>('#323232')
+const tags = ref<HotTag[]>([])
  
 //最新价
 const last_px = ref<string>('--')
@@ -167,9 +169,14 @@ async function loadHots(){
 
   console.log('/kpl/getstockconcepts/'+ code)
   const data:any = await getAPI('/kpl/getstockconcepts/'+ code,{})
-  console.log(data)
-  //   const params = {code:code}
-  //   const data:any = await postAPI('/sdata/narrow',params)
+  const hots: string[] = data['kpl_concept'].split(',')
+  const kpl_hot_concept = data['kpl_hot_concept'].split(',')
+  for (let i = 0; i< hots.length;i++){
+    let obj:{name:string,isHot:boolean}= {name:'',isHot:false}
+    obj.name = hots[i]
+    obj.isHot = kpl_hot_concept.includes(hots[i])
+    tags.value.push(obj) 
+  }
 
 }
  
@@ -251,6 +258,16 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 </script>
  
  <style>
+
+ .normal{
+  background-color: #fff;
+  color: #d81e06;
+ }
+
+ .normal{
+  background-color: #fff;
+  color: #1afa29;
+ }
 
 
 .tagContainer{
