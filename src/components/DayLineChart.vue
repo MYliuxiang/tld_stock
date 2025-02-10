@@ -516,6 +516,8 @@ function initChart(data:any) {
   ]
 
   let markLineData:Array<any> = []
+  console.log(line15)
+
   if(Number(line15) > 0){
     markLineData.push({
       yAxis: line15,
@@ -1427,9 +1429,6 @@ function moreChart(data:any) {
     }
   )
   vchart.value.setOption(options)
-
-
-
 
 }
 

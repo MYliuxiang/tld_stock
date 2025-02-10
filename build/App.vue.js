@@ -1,6 +1,4 @@
-import StockView from './views/StockView.vue';
 const { defineProps, defineSlots, defineEmits, defineExpose, defineModel, defineOptions, withDefaults, } = await import('vue');
-// import router from './router'
 ; /* PartiallyEnd: #3632/scriptSetup.vue */
 const __VLS_fnComponent = (await import('vue')).defineComponent({});
 ;
@@ -28,15 +26,7 @@ function __VLS_template() {
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent(__VLS_0, new __VLS_0({}));
     const __VLS_2 = __VLS_1({}, ...__VLS_functionalComponentArgsRest(__VLS_1));
-    // @ts-ignore
-    [StockView,];
-    // @ts-ignore
-    const __VLS_6 = __VLS_asFunctionalComponent(StockView, new StockView({ ...{ class: ("stockView") }, }));
-    const __VLS_7 = __VLS_6({ ...{ class: ("stockView") }, }, ...__VLS_functionalComponentArgsRest(__VLS_6));
-    __VLS_nonNullable(__VLS_5.slots).default;
-    var __VLS_5;
     __VLS_styleScopedClasses['home'];
-    __VLS_styleScopedClasses['stockView'];
     var __VLS_slots;
     var __VLS_inheritedAttrs;
     const __VLS_refs = {};
@@ -52,9 +42,7 @@ function __VLS_template() {
 ;
 const __VLS_self = (await import('vue')).defineComponent({
     setup() {
-        return {
-            StockView: StockView,
-        };
+        return {};
     },
 });
 export default (await import('vue')).defineComponent({

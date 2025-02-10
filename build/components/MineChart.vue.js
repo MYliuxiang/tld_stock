@@ -295,7 +295,6 @@ const initChart = (data) => {
             }
         },
     ];
-    console.log('==', color);
     let markLineData = [];
     if (Number(line15) > 0) {
         markLineData.push({

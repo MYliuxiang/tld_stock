@@ -494,6 +494,7 @@ function initChart(data) {
         }
     ];
     let markLineData = [];
+    console.log(line15);
     if (Number(line15) > 0) {
         markLineData.push({
             yAxis: line15,

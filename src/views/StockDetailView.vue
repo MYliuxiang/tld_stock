@@ -58,23 +58,24 @@
              </div> 
      </el-header>
          
-     <el-main style="display: flex; flex-direction: column;"> 
+     <el-main v-if="isShow" style="display: flex; flex-direction: column;"> 
         <div style="flex: 1;">
             <el-tabs v-model="activeName" class="stock-tabs" @tab-click="handleClick">
-                <el-tab-pane class="contentdetail" label="分时" name="first" lazy> 
-                    <MineChart :stockCode="code" :line15="line15" :line30="line30" :color="color" :classID='"stockview" + "1"' />
+                <el-tab-pane class="contentdetail" label="分时" name="mine" lazy> 
+                  <MineChart :stockCode="code" :line15="line15" :line30="line30" :color="color" :classID='"stockview" + "1"' />
+
                 </el-tab-pane>
-                <el-tab-pane class="contentdetail" label="五日" name="second" lazy>
-                    <FiveDayMineChart  :stockCode="code" :line15="line15" :line30="line30" :color="color" :classID='"stockview" + "2"'/>
+                <el-tab-pane class="contentdetail" label="五日" name="fiveday" lazy>
+                  <FiveDayMineChart :stockCode="code" :line15="line15" :line30="line30" :color="color" :classID='"stockview" + "2"'/>
                 </el-tab-pane>
-                <el-tab-pane class="contentdetail" label="日线" name="third" lazy>
-                    <DayLineChart :stockCode="code" :line15="line15" :line30="line30" :color="color" :stockData="stockData.value"/>
+                <el-tab-pane class="contentdetail" label="日线" name="day" lazy>
+                  <DayLineChart :stockCode="code" :line15="line15" :line30="line30" :color="color" :stockData="stockData.value"/>
                 </el-tab-pane> 
             </el-tabs> 
         </div>
         <el-space  wrap >
             <div v-for="(hot, index) in tags" :key="index">
-                <el-tag text> {{ hot.name }} </el-tag>
+                <el-tag text :class="{'normal':!hot.isHot,'hot':hot.isHot}" @click="tagClick(hot.name)"> {{ hot.name }} </el-tag>
             </div>
         </el-space>
      </el-main>
@@ -83,7 +84,7 @@
  
 <script setup lang="ts" name="StockDetailView">
  
-import { ref ,onBeforeMount, onUnmounted, reactive} from 'vue'
+import { ref ,onBeforeMount, onUnmounted, reactive,onMounted} from 'vue'
 import { TabsPaneContext } from 'element-plus'
 import { getAPI, postAPI } from '@/service'
 import { grayColor, greenColor, redColor } from '@/color'
@@ -96,12 +97,14 @@ const code = getQueryString('code') as string
 const line15 = getQueryString('line15') as string
 const line30 = getQueryString('line30') as string
 let color = getQueryString('color') as string
+const index = getQueryString('index') as string
 const stockData = reactive<any>({})
 const zdColor = ref<string>('#323232')
 const highColor = ref<string>('#323232')
 const lowColor = ref<string>('#323232')
 const openColor = ref<string>('#323232')
 const diffColor = ref<string>('#323232')
+const isShow = ref<boolean>(false)
 const tags = ref<HotTag[]>([])
  
 //最新价
@@ -129,6 +132,8 @@ const total_turnover = ref<string>('--')
 //diff
 const diff = ref<string>('--')
  
+const activeName = ref('mine')
+
 function getQueryString(name:string){
   let reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i')
   let r = window.location.search.substring(1).match(reg)
@@ -147,6 +152,10 @@ onBeforeMount(async () => {
   if(code == null){
     return
   }
+
+  
+
+
   loadHots()
   loadNewData()
  
@@ -158,6 +167,16 @@ onBeforeMount(async () => {
    
  
 })
+
+onMounted(()=>{
+  if(index=='day' || index=='fiveday'){
+    activeName.value = index
+    console.log(index)
+  }else{
+    activeName.value = 'mine'
+
+  }
+})
  
 onUnmounted(()=>{
   if(intervalId.value){
@@ -167,7 +186,6 @@ onUnmounted(()=>{
 
 async function loadHots(){
 
-  console.log('/kpl/getstockconcepts/'+ code)
   const data:any = await getAPI('/kpl/getstockconcepts/'+ code,{})
   const hots: string[] = data['kpl_concept'].split(',')
   const kpl_hot_concept = data['kpl_hot_concept'].split(',')
@@ -177,6 +195,7 @@ async function loadHots(){
     obj.isHot = kpl_hot_concept.includes(hots[i])
     tags.value.push(obj) 
   }
+  isShow.value = true
 
 }
  
@@ -188,7 +207,6 @@ async function loadNewData(){
   stockData.value = data
   const preclose_px = data['preclose_px']
   last_px.value = handFixed(data['real']['last_px'])
-  console.log(data)
   px_change.value = data['real']['px_change']
   pe_rate.value = data['real']['px_change_rate']
   if(last_px.value > preclose_px){
@@ -248,25 +266,46 @@ async function loadNewData(){
 }
  
  
- 
-const activeName = ref('first')
 const handleClick = (tab: TabsPaneContext, event: Event) => {
   // console.log(tab)
   // console.log(event)
+}
+
+const tagClick = (name:string)=>{
+  let win = window as any
+  if(win.webkit && win.webkit.messageHandlers && win.webkit.messageHandlers.nativeHandler){
+    win.webkit.messageHandlers.nativeHandler.postMessage(name)
+  }else{
+    console.log(name)
+  }
 }
  
 </script>
  
  <style>
 
- .normal{
-  background-color: #fff;
-  color: #d81e06;
- }
+
 
  .normal{
-  background-color: #fff;
-  color: #1afa29;
+  background-color: #fff !important;
+  color: #d81e06 !important;
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+  padding-left: 5px !important;
+  padding-right: 5px !important;
+  border-color: #d81e06 !important;
+  font-size: 12px !important;
+ }
+
+ .hot{
+  background-color: #1afa29 !important;
+  color: #d81e06 !important;
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+  padding-left: 5px !important;
+  padding-right: 5px !important;
+  border-color: #d81e06 !important;
+  font-size: 12px !important;
  }
 
 

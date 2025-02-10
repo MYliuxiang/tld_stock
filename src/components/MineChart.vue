@@ -324,8 +324,6 @@ const initChart = (data:any) => {
     },
    
   ]
-
-  console.log('==',color)
   let markLineData:Array<any> = []
   if(Number(line15) > 0){
     markLineData.push({
